@@ -944,8 +944,53 @@ class ProfileOrganizer:
                 sha256_hash.update(chunk)
         return sha256_hash.hexdigest()
 
+    def _extract_printer_from_pdf_filename(self, filename: str) -> Optional[str]:
+        """
+        Extract printer name from PDF filename.
+        Handles patterns like:
+        - HFA_CanPro-100_MK_Printersettings_DE.pdf
+        - HFAPhoto_EpsSC-P9500_MK_Printersettings_EN.pdf
+        - HFAMetallic_Can6450_MK_...pdf
+
+        Returns the canonical printer name or None if not found.
+        """
+        name_without_ext = Path(filename).stem
+
+        # Check for HFA patterns (HFA_, HFAPhoto_, HFAMetallic_)
+        if name_without_ext.startswith('HFA'):
+            # Extract parts after HFA/HFAPhoto/HFAMetallic prefix
+            if name_without_ext.startswith('HFAMetallic_'):
+                parts = name_without_ext[12:].split('_')  # Remove "HFAMetallic_" prefix
+            elif name_without_ext.startswith('HFAPhoto_'):
+                parts = name_without_ext[9:].split('_')  # Remove "HFAPhoto_" prefix
+            else:  # Just "HFA_"
+                parts = name_without_ext[4:].split('_')  # Remove "HFA_" prefix
+
+            if len(parts) >= 1:
+                printer_key = parts[0]
+                # Look up in printer names
+                printer_name = self.PRINTER_NAMES.get(printer_key, None)
+                if printer_name:
+                    # Apply remapping if needed
+                    printer_name = self._apply_printer_remapping(printer_name)
+                    return printer_name
+
+        # Check for other patterns in filename
+        for key, full_name in self.PRINTER_NAMES.items():
+            if key.lower() in name_without_ext.lower():
+                # Found a printer key in the filename
+                full_name = self._apply_printer_remapping(full_name)
+                return full_name
+
+        return None
+
     def _extract_printer_from_context(self, file_path: Path) -> Optional[str]:
-        """Extract printer name from file path context."""
+        """Extract printer name from file path context (filename first, then parent dirs)."""
+        # First, try to extract from filename
+        printer_from_filename = self._extract_printer_from_pdf_filename(file_path.name)
+        if printer_from_filename:
+            return printer_from_filename
+
         # Check parent directory name and all parents
         for parent in [file_path.parent] + list(file_path.parents):
             parent_name = parent.name
@@ -953,6 +998,7 @@ class ProfileOrganizer:
             # Look for exact and case-insensitive matches
             for key, full_name in self.PRINTER_NAMES.items():
                 if key.lower() in parent_name.lower():
+                    full_name = self._apply_printer_remapping(full_name)
                     return full_name
 
             # Special handling for patterns like "IPF 6450" vs "iPF6450"

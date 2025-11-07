@@ -2,6 +2,34 @@
 
 A smart tool that automatically organizes ICC color profiles, EMX/EMY2 files, and PDFs by printer model and paper brand, with support for flexible printer name mappings and profile remappings.
 
+## Setup
+
+### Using a Virtual Environment (Recommended)
+
+It's recommended to use a Python virtual environment to isolate dependencies:
+
+```bash
+# Create a virtual environment
+python3 -m venv venv
+
+# Activate it
+source venv/bin/activate  # On macOS/Linux
+# OR
+venv\Scripts\activate  # On Windows
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### Quick Install
+
+Without a virtual environment:
+```bash
+pip install -r requirements.txt
+```
+
+> **Note:** The script can run without these dependencies, but features like configuration file support (PyYAML) and image metadata reading (Pillow) will be unavailable.
+
 ## Quick Start
 
 ### Preview changes (dry-run mode)
@@ -67,9 +95,9 @@ The organizer uses an optional `config.yaml` file for:
 
 ### Fallback Behavior
 
-If `config.yaml` is missing or PyYAML isn't installed, the organizer automatically uses built-in defaults. To enable YAML support:
+If `config.yaml` is missing or PyYAML isn't installed, the organizer automatically uses built-in defaults. PyYAML is included in `requirements.txt`, so install it via:
 ```bash
-pip install PyYAML
+pip install -r requirements.txt
 ```
 
 ## Command-Line Options

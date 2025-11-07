@@ -183,3 +183,5 @@ profiles
 organized-profiles
 .claude
 .vscode
+.profile_choices.json
+.profile_preferences.json
