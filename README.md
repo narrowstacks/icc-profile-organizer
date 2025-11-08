@@ -24,6 +24,7 @@ pip install -r requirements.txt
 ### Quick Install
 
 Without a virtual environment:
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -32,19 +33,152 @@ pip install -r requirements.txt
 
 ## Quick Start
 
-### Preview changes (dry-run mode)
+### Preview changes (dry-run mode, no files changed or moved)
+
 ```bash
 python3 organize_profiles.py ./profiles
 ```
 
 ### Apply changes
+
 ```bash
 python3 organize_profiles.py ./profiles --execute
 ```
 
 ### Interactive mode (for multi-printer profiles)
+
 ```bash
 python3 organize_profiles.py ./profiles --interactive
+```
+
+## Interactive TUI (Config Builder)
+
+### Build Configuration Interactively
+
+Instead of manually editing `config.yaml`, use the interactive Terminal User Interface to build and manage your configuration:
+
+```bash
+python3 profile_config_tui.py
+```
+
+### Features
+
+The TUI provides four main screens:
+
+#### 1. **Scan Profiles** 📁
+- Browse to your profiles folder
+- Auto-detects all ICC/ICM/EMY2 files
+- Displays extracted printer, brand, and paper type information
+- Shows preview of how files will be renamed
+- Saves discovered mappings to your config
+
+#### 2. **Edit Configuration** ⚙️
+- **Printer Names tab**: Manage printer aliases and canonical names
+- **Brand Mappings tab**: Normalize brand variations (cifa → Canson, etc.)
+- **Paper Brands tab**: Manage recognized paper brands
+- **Printer Remappings tab**: Define which printers map to others
+- Full YAML editing with syntax highlighting
+- Real-time save to `config.yaml`
+
+#### 3. **Fix Undetected Profiles** 🔧
+When scanning, profiles that don't match known patterns are highlighted as "undetected". The TUI helps you define mappings for these:
+- Shows detection rate and summary of undetected profiles
+- Click "Fix Undetected" to create bindings for new printers/brands
+- Smart pattern extraction suggests printer/brand names from filenames
+- **Smart mapping reuse**: Once you define a mapping for a printer pattern (e.g., "PRO100"), it automatically applies to all other profiles with the same pattern
+- Shows "[💾 Using saved mapping for 'PRO100']" when reusing cached mappings
+- **Full auto-processing**: When BOTH printer AND brand are cached, the TUI:
+  - Auto-extracts paper type from filename (e.g., "Canvas Matte" from `CANON_PRO100_Canvas_Matte.icc`)
+  - Automatically saves the profile without any user interaction
+  - Shows "[⚡ Auto-processing: 'PRO100' (printer + brand cached)]"
+  - Moves to next profile instantly
+- Three ways to process:
+  - **Save Mapping**: Define one profile, move to next
+  - **Apply to All**: Auto-apply current mapping to all remaining profiles with same printer pattern (fast bulk processing)
+  - **Skip**: Move to next without saving
+- **Preview screen**: After processing all profiles, see a summary table showing:
+  - All mappings with printer, brand, and extracted paper type
+  - Which profiles were auto-processed vs manually defined (⚡ vs ✓)
+  - Total count breakdown before saving to config.yaml
+- New mappings are saved directly to `config.yaml`
+- Summary shows breakdown: "✓ Saved 25 mapping(s) (5 manual + 20 auto-processed)"
+
+#### 4. **Preview Organization** 👁️
+- Enter a profiles folder path
+- See a tree view of how files will be organized
+- Displays final filenames: `Printer - Brand - Type.icc`
+- Organize into: `organized-profiles/Printer/Brand/filename`
+- Preview without making changes
+
+#### 5. **Keyboard Navigation**
+- Arrow keys: Navigate menus and tables
+- Tab/Shift+Tab: Move between fields
+- Enter: Confirm selections
+- Escape: Go back to previous screen
+- Ctrl+S: Save configuration (in editor)
+- Q: Quit application
+
+### Example Workflow
+
+1. Start the TUI:
+   ```bash
+   python3 profile_config_tui.py
+   ```
+
+2. Click "Scan Profiles" to auto-detect profiles in a folder
+   - Select your `./profiles` directory
+   - Review auto-detected printer/brand assignments
+   - See detection rate (e.g., "✓ 75/100 detected (75.0%) | ⚠️ 25 undetected")
+
+3. **(NEW)** If there are undetected profiles:
+   - Click "Fix Undetected" to create mappings for unknown printers/brands
+   - Review smart suggestions extracted from filenames
+   - For the first profile of each pattern:
+     - Enter printer name, brand, and paper type
+     - Click **"Apply to All"** to auto-apply to all remaining profiles with same pattern
+     - Example: Define "CANON_PRO100_Canvas.icc" → "Canon Pixma PRO-100" / "Moab"
+     - All other "CANON_PRO100_*.icc" profiles automatically get the same mapping
+   - For subsequent patterns:
+     - If both printer AND brand are cached from a previous pattern:
+       - TUI shows "[⚡ Auto-processing: 'PRO100' (printer + brand cached)]"
+       - Paper type is auto-extracted from filename
+       - Profile is automatically saved without any user input
+       - Instantly moves to next profile
+     - Otherwise, follow same process as step 1
+   - Result example with 50 profiles:
+     - You define 3 printer patterns manually
+     - 47 profiles auto-processed automatically (94% automation)
+   - **Preview screen** shows before final save:
+     - Table with all mappings
+     - Clearly marks which were auto-processed (⚡) vs manual (✓)
+     - Breakdown: "Total: 50 | Manual: 3 | Auto-Processed: 47"
+   - Click "Save & Done" to save all mappings to config.yaml
+
+4. After fixing undetected profiles:
+   - Click "Save & Next" to see the preview
+   - The preview screen shows the final organized structure
+
+5. Optional: Go back to "Edit Config" to manually adjust:
+   - Printer aliases
+   - Brand name mappings
+   - Remapping rules
+
+6. Use the updated configuration with the main organizer:
+   ```bash
+   python3 organize_profiles.py ./profiles --execute
+   ```
+
+### Quick Reference
+
+```bash
+# Start interactive config builder
+python3 profile_config_tui.py
+
+# Start with custom config path
+python3 profile_config_tui.py --config /path/to/config.yaml
+
+# Get help
+python3 profile_config_tui.py --help
 ```
 
 ## What It Does
@@ -61,6 +195,7 @@ python3 organize_profiles.py ./profiles --interactive
 The organizer uses an optional `config.yaml` file for:
 
 1. **Printer Name Mappings** - Consolidate aliases to canonical names
+
    ```yaml
    printer_names:
      Canon Pixma PRO-100:
@@ -71,6 +206,7 @@ The organizer uses an optional `config.yaml` file for:
    ```
 
 2. **Brand Name Mappings** - Normalize paper brand variations
+
    ```yaml
    brand_name_mappings:
      Canson:
@@ -80,6 +216,7 @@ The organizer uses an optional `config.yaml` file for:
    ```
 
 3. **Paper Brands** - List of recognized brands
+
    ```yaml
    paper_brands:
      - Moab
@@ -96,6 +233,7 @@ The organizer uses an optional `config.yaml` file for:
 ### Fallback Behavior
 
 If `config.yaml` is missing or PyYAML isn't installed, the organizer automatically uses built-in defaults. PyYAML is included in `requirements.txt`, so install it via:
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -148,6 +286,7 @@ Some profiles work with multiple printers (e.g., `MOAB Anasazi Canvas Matte P757
 3. Future files with the same combo use your choice automatically
 
 Example `.profile_preferences.json`:
+
 ```json
 {
   "P7570-P9570": "Epson SureColor P7570",
@@ -186,12 +325,14 @@ After organizing profiles, you can automatically copy them to your system's ICC 
 On macOS, you have two options:
 
 **Option 1: System Directory** (requires admin)
+
 - Path: `/Library/ColorSync/Profiles`
 - Profiles available to all users on the computer
 - Requires `sudo` or admin password
 - Recommended for shared computers
 
 **Option 2: User Directory** (no admin needed)
+
 - Path: `~/Library/ColorSync/Profiles`
 - Profiles available only to your user account
 - No admin privileges required
@@ -213,6 +354,7 @@ python3 organize_profiles.py ./profiles --execute
 ```
 
 If you choose the system directory and don't have permission, the program will suggest:
+
 ```bash
 sudo python3 organize_profiles.py ./profiles --execute --system-profiles
 ```
@@ -256,10 +398,12 @@ python3 organize_profiles.py ./profiles --execute --system-profiles
 #### Windows: Run with Admin Privileges
 
 1. **Open Command Prompt or PowerShell as Administrator:**
+
    - Press `Win + X` and select "Command Prompt (Admin)" or "PowerShell (Admin)"
    - Or: Right-click Command Prompt/PowerShell → "Run as administrator"
 
 2. **Run the script:**
+
    ```bash
    python organize_profiles.py ./profiles --execute --system-profiles
    ```
@@ -277,6 +421,7 @@ python3 organize_profiles.py ./profiles --execute --system-profiles
 The programs respects each OS's requirements:
 
 **macOS:** Preserves your organized folder structure
+
 ```
 ~/Library/ColorSync/Profiles/
 ├── Canon Pixma PRO-100/
@@ -289,6 +434,7 @@ The programs respects each OS's requirements:
 ```
 
 **Windows:** Uses flat structure (no subdirectories)
+
 ```
 C:\Windows\System32\spool\drivers\color\
 ├── Canon Pixma PRO-100 - Canson - aqua240.icc
@@ -299,6 +445,7 @@ C:\Windows\System32\spool\drivers\color\
 
 ## Features
 
+✅ **Interactive TUI** - Build and manage configuration with an easy-to-use terminal interface
 ✅ **Smart Parsing** - Auto-detects and parses profiles from various manufacturers
 ✅ **Duplicate Handling** - SHA-256 hash-based PDF duplicate detection
 ✅ **Multi-Printer Support** - Interactive or rule-based handling
@@ -310,14 +457,17 @@ C:\Windows\System32\spool\drivers\color\
 ## Troubleshooting
 
 **"Could not parse" warnings:**
+
 - Some files may not be automatically recognized
 - Check `profile_organizer.log` for details
 
 **Multi-printer files keep prompting:**
+
 - Verify `.profile_preferences.json` exists and contains the rule
 - Try deleting preference files and recreating rules
 
 **Want to change a printer choice:**
+
 - Edit `.profile_preferences.json` directly
 - Or delete the file and rerun with `--interactive`
 

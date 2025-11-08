@@ -1,108 +1,72 @@
-# ICC Profile Organizer Configuration
-
-# Printer name mappings
-# Structure: Canonical Name: [list of aliases]
-# All aliases will be mapped to the canonical name
 printer_names:
   Canon Pixma PRO-100:
-    - PRO-100
-    - Pro-100
-    - pro-100
-    - pixmapro100
-    - pro100
-    - CanPro-100
-    - CanPro100
-    - canpro-100
-    - canpro100
-    - CANPRO-100
-    - CANPRO100
-
+  - PRO-100
+  - Pro-100
+  - pro-100
+  - pixmapro100
+  - pro100
+  - CanPro-100
+  - CanPro100
+  - canpro-100
+  - canpro100
+  - CANPRO-100
+  - CANPRO100
   Canon iPF6450:
-    - Can6450
-    - iPF6450
-    - ipf6450
-    - iPf6450
-    - ipf6400
-
+  - Can6450
+  - iPF6450
+  - ipf6450
+  - iPf6450
+  - ipf6400
   Canon iPF8400:
-    - Can8400
-
+  - Can8400
   Epson P700:
-    - P700
-    - SC-P700
-    - EpsSC-P700
-
+  - P700
+  - SC-P700
+  - EpsSC-P700
   Epson P900:
-    - P900
-    - SC-P900
-    - EpsSC-P900
-    - p900
-
+  - P900
+  - SC-P900
+  - EpsSC-P900
+  - p900
   Epson P7500:
-    - P7500
-    - SC-P7500
-    - p7500
-
+  - P7500
+  - SC-P7500
+  - p7500
   Epson P7570:
-    - P7570
-    - SC-P7570
-    - p7570
-    - EpsSC-P7570
-    - Epson SureColor P7570
-    - Epson SureColor SC-P7570
-
+  - P7570
+  - SC-P7570
+  - p7570
+  - EpsSC-P7570
+  - Epson SureColor P7570
+  - Epson SureColor SC-P7570
   Epson P9500:
-    - EpsSC-P9500
-
+  - EpsSC-P9500
   Epson P9570:
-    - P9570
-    - SC-P9570
-
-# Brand name mappings
-# Structure: Canonical Brand Name: [list of aliases]
-# All aliases will be normalized to the canonical name
+  - P9570
+  - SC-P9570
 brand_name_mappings:
   Canson:
-    - cifa
-    - CIFA
-    - canson
-    - Canson
-
-  Hahnemuehle:
-    - HFA
-    - hfa
-    - Hahnemuehle
-    - hahnemuehle
-
-  MOAB:
-    - MOAB
-    - Moab
-    - moab
-
-# Known paper brands
-# Used for organizing profiles by brand
-paper_brands:
-  - Moab
+  - cifa
+  - CIFA
+  - canson
   - Canson
+  Hahnemuehle:
+  - HFA
+  - hfa
   - Hahnemuehle
-
-# Printer remappings
-# Structure: Original Printer Name: Remapped Printer Name
-#
-# Useful when profiles work on multiple printers:
-#   - Some P700 profiles from Epson work on P900
-#   - Downloaded from one printer's site but work on another
-#   - Want to consolidate similar models into one folder
-#
-# Example:
-#   printer_remappings:
-#     "Epson P700": "Epson P900"
-#
-# This will cause all profiles detected as P700 to be organized
-# in the P900 folder instead
+  - hahnemuehle
+  MOAB:
+  - MOAB
+  - Moab
+  - moab
+paper_brands:
+- Hahnemuehle
+- Canson
+- MOAB
+- Moab
 printer_remappings:
-  "Canon iPF8400": "Canon iPF6450"    # Map iPF8400 to iPF6450
-  "Epson P700": "Epson P900"          # Map P700 to P900
-  "Epson P7500": "Epson P7570"        # Map P7500 to P7570
-  "Epson P9500": "Epson P7570"        # Map P9500 to P7570
-  "Epson SureColor P7570": "Epson P7570"  # Map SureColor variant to standard name
+  Canon iPF8400: Canon iPF6450
+  Epson P700: Epson P900
+  Epson P7500: Epson P7570
+  Epson P9500: Epson P7570
+  Epson SureColor P7570: Epson P7570
