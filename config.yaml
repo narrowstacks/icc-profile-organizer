@@ -17,6 +17,8 @@ printer_names:
   - ipf6450
   - iPf6450
   - ipf6400
+  - IPF6400      # Red River Paper uses IPF6400
+  - iPFX400      # Red River Paper uses iPFX400 as generic placeholder
   Canon iPF8400:
   - Can8400
   Epson P700:
@@ -39,11 +41,13 @@ printer_names:
   - EpsSC-P7570
   - Epson SureColor P7570
   - Epson SureColor SC-P7570
+  - "7570"      # Red River Paper uses just "7570" or "7570-9570"
   Epson P9500:
   - EpsSC-P9500
   Epson P9570:
   - P9570
   - SC-P9570
+  - "9570"      # Red River Paper uses just "9570"
 brand_name_mappings:
   Canson:
   - cifa
@@ -70,3 +74,132 @@ printer_remappings:
   Epson P7500: Epson P7570
   Epson P9500: Epson P7570
   Epson SureColor P7570: Epson P7570
+
+# Filename patterns for parsing ICC profiles and EMY2 files
+# Patterns are evaluated in priority order (higher priority first)
+# Each pattern defines how to extract printer, paper brand, and paper type from filenames
+filename_patterns:
+  # Pattern 1: MOAB profiles (brand prefix with positional paper type)
+  # Examples: "MOAB Anasazi Canvas PRO-100 MPP", "MOAB Lasal Gloss Matte P7570-P9570 ECM"
+  - name: moab_profiles
+    priority: 100
+    description: "MOAB brand profiles with positional paper type"
+    prefix: "MOAB "
+    prefix_case_insensitive: true
+    delimiter: " "
+    # Structure: paper type comes before printer, code after
+    structure:
+      - field: paper_type
+        position: "before_printer"
+      - field: printer
+        match_type: "key_search"  # Search through printer keys
+      - field: code
+        position: "after_printer"
+    brand_value: "MOAB"
+    paper_type_processing:
+      format: true  # Apply CamelCase separation
+
+  # Pattern 2: EPSON SC- EMY2 files (manufacturer + model prefix)
+  # Examples: "EPSON SC-P900 Moab Entrada Rag Bright 190"
+  - name: epson_sc_files
+    priority: 90
+    description: "EPSON SC-P### EMY2 files with fixed position parsing"
+    prefix: "EPSON SC-"
+    prefix_case_insensitive: false
+    delimiter: " "
+    structure:
+      - field: printer
+        position: 0  # "P900" at index 0 (after prefix removed)
+      - field: brand
+        position: 1  # e.g., "Moab" at index 1
+      - field: paper_type
+        position: "2+"  # Rest is paper type
+    brand_value: null  # Use position 1
+    paper_type_processing:
+      format: true
+
+  # Pattern 3: Canson/CIFA profiles (brand code with underscore separation)
+  # Examples: "cifa_pixmapro100_baryta2_310", "cifa_Can6450_Photo_Rag_308"
+  - name: cifa_profiles
+    priority: 80
+    description: "Canson/CIFA profiles with underscore-delimited structure"
+    prefix: "cifa_"
+    prefix_case_insensitive: true
+    delimiter: "_"
+    structure:
+      - field: printer
+        position: 0
+      - field: paper_type
+        position: "1+"
+    brand_value: "Canson"
+    paper_type_processing:
+      format: true
+
+  # Pattern 4: Hahnemuehle (HFA) base profiles (brand code with variants)
+  # Variants: "HFA_", "HFAPhoto_", "HFAMetallic_"
+  # Examples: "HFA_Can6450_MK_PhotoRag308", "HFAPhoto_EpsSC-P900_PK_GlossyFine"
+  - name: hfa_profiles
+    priority: 85
+    description: "Hahnemuehle HFA profiles with variant prefixes"
+    prefix: "HFA"
+    prefix_case_insensitive: false
+    # Multiple variants with different prefix lengths
+    variants:
+      - prefix: "HFAMetallic_"
+        prefix_length: 12
+      - prefix: "HFAPhoto_"
+        prefix_length: 9
+      - prefix: "HFA_"
+        prefix_length: 4
+    delimiter: "_"
+    structure:
+      - field: printer
+        position: 0
+      - field: mk_pk  # MK or PK marker
+        position: 1
+      - field: paper_type
+        position: "2+"
+    brand_value: "Hahnemuehle"
+    paper_type_processing:
+      format: true
+      remove_brand: "Hahnemuehle"  # Strip brand name from paper type
+
+  # Pattern 5: Red River Papers (Epson profiles)
+  # Examples: "RR Arctic Polar Luster Ep 7570-9750", "RR Palo Duro Matte Canvas P9570 P7570"
+  - name: red_river_profiles
+    priority: 75
+    description: "Red River Papers Epson profiles"
+    prefix: "RR "
+    prefix_case_insensitive: false
+    delimiter: " "
+    structure:
+      - field: paper_type
+        position: "before_printer"  # Everything before printer model
+      - field: printer
+        match_type: "key_search"    # Search for printer keys in remaining parts
+    brand_value: "Red River"
+    paper_type_processing:
+      format: true
+      remove_brand: "Ep"  # Remove "Ep" prefix (Epson indicator)
+
+  # Pattern 6: Fallback - substring printer detection
+  # Used when specific patterns don't match
+  - name: fallback_printer_detection
+    priority: 10
+    description: "Fallback: find any printer key in filename"
+    prefix: null
+    prefix_case_insensitive: true
+    delimiter: " "
+    structure:
+      - field: printer
+        match_type: "substring"  # Case-insensitive substring search
+      - field: paper_type
+        position: "remaining"  # Everything except printer key
+    brand_value: "Unknown"
+    paper_type_processing:
+      format: true
+
+# Preprocessing applied to all filenames before pattern matching
+# Examples: "MOAB+Lasal+Gloss+PRO-100+OGP.icc" -> "MOAB Lasal Gloss PRO-100 OGP"
+preprocessing:
+  normalize_plus_to_space: true

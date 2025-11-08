@@ -12,10 +12,11 @@ import json
 import struct
 import platform
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Any
 from collections import defaultdict
 import logging
 from datetime import datetime
+from dataclasses import dataclass, field
 
 try:
     import yaml
@@ -257,6 +258,260 @@ class ICCProfileUpdater:
         return processed, successful
 
 
+# ============================================================================
+# Pattern Matching System - Dataclasses for generalized filename parsing
+# ============================================================================
+
+@dataclass
+class FieldDefinition:
+    """Defines a field in a filename pattern."""
+    field: str  # "printer", "paper_type", "brand", etc.
+    position: Optional[Any] = None  # Index, "before_printer", "after_printer", "1+", "remaining", etc.
+    match_type: Optional[str] = None  # "key_search", "substring", etc.
+
+
+@dataclass
+class PatternVariant:
+    """Variant prefix for patterns with multiple prefix options (like HFA variants)."""
+    prefix: str
+    prefix_length: int
+
+
+@dataclass
+class PaperTypeProcessing:
+    """Configuration for paper type formatting."""
+    format: bool = False  # Apply CamelCase separation
+    remove_brand: Optional[str] = None  # Brand name to remove from paper type
+
+
+@dataclass
+class FilenamePattern:
+    """Complete pattern definition for parsing a filename format."""
+    name: str
+    priority: int
+    description: str
+    prefix: Optional[str]
+    prefix_case_insensitive: bool
+    delimiter: str
+    structure: List[FieldDefinition]
+    brand_value: Optional[str]
+    paper_type_processing: PaperTypeProcessing
+    variants: List[PatternVariant] = field(default_factory=list)
+
+    def __lt__(self, other):
+        """Enable sorting by priority (higher priority first)."""
+        return self.priority > other.priority
+
+
+class PatternMatcher:
+    """Unified pattern matching engine for filename parsing."""
+
+    def __init__(self, patterns: List[FilenamePattern], printer_names: Dict[str, str],
+                 brand_name_mappings: Dict[str, str], format_paper_type_fn):
+        """
+        Initialize the pattern matcher.
+
+        Args:
+            patterns: List of FilenamePattern objects, sorted by priority
+            printer_names: Dict mapping printer keys to canonical names
+            brand_name_mappings: Dict mapping brand variants to canonical names
+            format_paper_type_fn: Function to format paper type strings
+        """
+        self.patterns = sorted(patterns)  # Sort by priority (higher first)
+        self.printer_names = printer_names
+        self.brand_name_mappings = brand_name_mappings
+        self.format_paper_type = format_paper_type_fn
+
+    def match(self, filename: str) -> Optional[Tuple[Optional[str], Optional[str], Optional[str]]]:
+        """
+        Try to match filename against patterns.
+
+        Returns:
+            Tuple of (printer_name, paper_brand, paper_type) or None if no match
+        """
+        name_without_ext = Path(filename).stem
+
+        # Apply preprocessing
+        name_without_ext = name_without_ext.replace('+', ' ')
+
+        # Try each pattern in priority order
+        for pattern in self.patterns:
+            result = self._try_pattern(name_without_ext, pattern)
+            if result:
+                return result
+
+        return None
+
+    def _try_pattern(self, filename: str, pattern: FilenamePattern) -> Optional[Tuple[str, str, str]]:
+        """Try to match filename against a specific pattern."""
+        # Check prefix match
+        if pattern.prefix is not None:
+            if pattern.variants:
+                # Try variant prefixes
+                prefix_match = None
+                prefix_len = 0
+                for variant in pattern.variants:
+                    if pattern.prefix_case_insensitive:
+                        if filename.lower().startswith(variant.prefix.lower()):
+                            prefix_match = variant.prefix
+                            prefix_len = variant.prefix_length
+                            break
+                    else:
+                        if filename.startswith(variant.prefix):
+                            prefix_match = variant.prefix
+                            prefix_len = variant.prefix_length
+                            break
+
+                if not prefix_match:
+                    return None
+
+                # Remove prefix and parse
+                remaining = filename[prefix_len:]
+            else:
+                # Single prefix
+                if pattern.prefix_case_insensitive:
+                    if not filename.upper().startswith(pattern.prefix.upper()):
+                        return None
+                    remaining = filename[len(pattern.prefix):]
+                else:
+                    if not filename.startswith(pattern.prefix):
+                        return None
+                    remaining = filename[len(pattern.prefix):]
+        else:
+            # No prefix requirement (fallback pattern)
+            remaining = filename
+
+        # Split remaining part by delimiter
+        parts = remaining.split(pattern.delimiter)
+
+        # Extract fields based on structure
+        extracted = {}
+        for field_def in pattern.structure:
+            value = self._extract_field(parts, field_def, filename, pattern)
+            if value is not None:
+                extracted[field_def.field] = value
+
+        # Validate we got required fields
+        if 'printer' not in extracted:
+            return None
+
+        # Get paper brand
+        if pattern.brand_value is not None:
+            brand = pattern.brand_value
+        elif 'brand' in extracted:
+            brand = extracted['brand']
+        else:
+            brand = 'Unknown'
+
+        # Normalize brand
+        brand = self._normalize_brand(brand)
+
+        # Get paper type
+        paper_type = extracted.get('paper_type', 'Unknown')
+
+        # Format paper type if needed
+        if pattern.paper_type_processing.format:
+            remove_brand = pattern.paper_type_processing.remove_brand
+            paper_type = self.format_paper_type(paper_type, remove_brand=remove_brand)
+
+        return extracted['printer'], brand, paper_type
+
+    def _extract_field(self, parts: List[str], field_def: FieldDefinition,
+                      filename: str, pattern: FilenamePattern) -> Optional[str]:
+        """Extract a field value based on field definition."""
+        if field_def.match_type == 'key_search':
+            # Search through printer keys
+            for printer_key in self.printer_names.keys():
+                for i, part in enumerate(parts):
+                    if part.lower() == printer_key.lower() or \
+                       part == printer_key or \
+                       printer_key.lower() in part.lower():
+                        return self.printer_names.get(printer_key, printer_key)
+            return None
+
+        elif field_def.match_type == 'substring':
+            # Find printer key via case-insensitive substring
+            filename_lower = filename.lower()
+            best_match = None
+            best_key = None
+            for printer_key in self.printer_names.keys():
+                if printer_key.lower() in filename_lower:
+                    if best_key is None or len(printer_key) > len(best_key):
+                        best_key = printer_key
+                        best_match = self.printer_names.get(printer_key, printer_key)
+            return best_match
+
+        elif isinstance(field_def.position, int):
+            # Fixed position
+            if 0 <= field_def.position < len(parts):
+                part = parts[field_def.position]
+                # If this is a printer field, try to look it up in printer names
+                if field_def.field == 'printer':
+                    # Try exact match first
+                    if part in self.printer_names:
+                        return self.printer_names[part]
+                    # Try case-insensitive match
+                    for key, value in self.printer_names.items():
+                        if part.lower() == key.lower():
+                            return value
+                        # Also try substring match for keys like "SC-P900" matching "P900"
+                        if key.lower() in part.lower() or part.lower() in key.lower():
+                            return value
+                    # If no match found, return the raw part (might match later in pipeline)
+                    return part
+                return part
+            return None
+
+        elif field_def.position == "before_printer":
+            # Everything before the printer key
+            for i, part in enumerate(parts):
+                for printer_key in self.printer_names.keys():
+                    if part.lower() == printer_key.lower() or printer_key.lower() in part.lower():
+                        return pattern.delimiter.join(parts[:i])
+            return None
+
+        elif field_def.position == "after_printer":
+            # Everything after the printer key
+            for i, part in enumerate(parts):
+                for printer_key in self.printer_names.keys():
+                    if part.lower() == printer_key.lower() or printer_key.lower() in part.lower():
+                        if i + 1 < len(parts):
+                            return pattern.delimiter.join(parts[i + 1:])
+            return None
+
+        elif isinstance(field_def.position, str) and field_def.position.endswith('+'):
+            # Range: "1+" or "2+"
+            try:
+                start_idx = int(field_def.position[:-1])
+                if start_idx < len(parts):
+                    return pattern.delimiter.join(parts[start_idx:])
+            except ValueError:
+                pass
+            return None
+
+        elif field_def.position == "remaining":
+            # Everything except printer key
+            filename_lower = filename.lower()
+            best_key = None
+            for printer_key in self.printer_names.keys():
+                if printer_key.lower() in filename_lower:
+                    if best_key is None or len(printer_key) > len(best_key):
+                        best_key = printer_key
+            if best_key:
+                # Remove the printer key from filename
+                result = filename_lower.replace(best_key.lower(), '').strip()
+                return result
+            return None
+
+        return None
+
+    def _normalize_brand(self, brand: str) -> str:
+        """Normalize brand name using mappings."""
+        if brand in self.brand_name_mappings:
+            return self.brand_name_mappings[brand]
+        return brand
+
+
 class ProfileOrganizer:
     """Organizes ICC profiles, EMX files, and PDFs."""
 
@@ -279,6 +534,8 @@ class ProfileOrganizer:
         'ipf6450': 'Canon iPF6450',
         'iPf6450': 'Canon iPF6450',  # Lowercase 'f' variant
         'ipf6400': 'Canon iPF6450',  # Alternative naming
+        'IPF6400': 'Canon iPF6450',  # Red River Paper uses IPF6400
+        'iPFX400': 'Canon iPF6450',  # Red River Paper uses iPFX400 as generic placeholder
         'P700': 'Epson P700',
         'P900': 'Epson P900',
         'SC-P700': 'Epson P700',
@@ -423,6 +680,10 @@ class ProfileOrganizer:
                 # Load printer remappings (optional)
                 self.PRINTER_REMAPPINGS = config.get('printer_remappings', {})
 
+                # Load filename patterns and build PatternMatcher
+                patterns_raw = config.get('filename_patterns', [])
+                self._build_pattern_matcher(patterns_raw)
+
                 self.log(f"Loaded configuration from {config_path}")
                 return
             except Exception as e:
@@ -433,6 +694,7 @@ class ProfileOrganizer:
         self.PAPER_BRANDS = self.DEFAULT_PAPER_BRANDS
         self.BRAND_NAME_MAPPINGS = self.DEFAULT_BRAND_NAME_MAPPINGS
         self.PRINTER_REMAPPINGS = self.DEFAULT_PRINTER_REMAPPINGS
+        self._build_default_pattern_matcher()
 
     def _flatten_mapping(self, mapping: Dict[str, List[str]]) -> Dict[str, str]:
         """
@@ -450,6 +712,182 @@ class ProfileOrganizer:
                 # Handle case where value is a string instead of list (shouldn't happen in new format)
                 flat[aliases] = canonical_name
         return flat
+
+    def _build_pattern_matcher(self, patterns_raw: List[Dict[str, Any]]):
+        """Build PatternMatcher from config YAML patterns."""
+        try:
+            patterns = []
+            for pattern_dict in patterns_raw:
+                pattern = self._parse_pattern_dict(pattern_dict)
+                if pattern:
+                    patterns.append(pattern)
+
+            if patterns:
+                self.pattern_matcher = PatternMatcher(patterns, self.PRINTER_NAMES,
+                                                      self.BRAND_NAME_MAPPINGS, self._format_paper_type)
+                self.log(f"Loaded {len(patterns)} filename patterns")
+            else:
+                self.log("No valid patterns found in config, using defaults", level='WARNING')
+                self._build_default_pattern_matcher()
+        except Exception as e:
+            self.log(f"Error building pattern matcher: {e}", level='WARNING')
+            self._build_default_pattern_matcher()
+
+    def _parse_pattern_dict(self, pattern_dict: Dict[str, Any]) -> Optional[FilenamePattern]:
+        """Parse a pattern dictionary from YAML and return a FilenamePattern object."""
+        try:
+            # Parse structure
+            structure_raw = pattern_dict.get('structure', [])
+            structure = []
+            for field_dict in structure_raw:
+                field_def = FieldDefinition(
+                    field=field_dict.get('field'),
+                    position=field_dict.get('position'),
+                    match_type=field_dict.get('match_type')
+                )
+                structure.append(field_def)
+
+            # Parse variants
+            variants = []
+            for variant_dict in pattern_dict.get('variants', []):
+                variant = PatternVariant(
+                    prefix=variant_dict.get('prefix'),
+                    prefix_length=variant_dict.get('prefix_length')
+                )
+                variants.append(variant)
+
+            # Parse paper type processing
+            ptp_raw = pattern_dict.get('paper_type_processing', {})
+            paper_type_processing = PaperTypeProcessing(
+                format=ptp_raw.get('format', False),
+                remove_brand=ptp_raw.get('remove_brand')
+            )
+
+            # Create pattern
+            pattern = FilenamePattern(
+                name=pattern_dict.get('name'),
+                priority=pattern_dict.get('priority', 50),
+                description=pattern_dict.get('description', ''),
+                prefix=pattern_dict.get('prefix'),
+                prefix_case_insensitive=pattern_dict.get('prefix_case_insensitive', False),
+                delimiter=pattern_dict.get('delimiter', ' '),
+                structure=structure,
+                brand_value=pattern_dict.get('brand_value'),
+                paper_type_processing=paper_type_processing,
+                variants=variants
+            )
+
+            return pattern
+        except Exception as e:
+            self.log(f"Error parsing pattern {pattern_dict.get('name', 'unknown')}: {e}", level='WARNING')
+            return None
+
+    def _build_default_pattern_matcher(self):
+        """Build a default PatternMatcher with hardcoded patterns for fallback."""
+        patterns = [
+            # MOAB pattern
+            FilenamePattern(
+                name='moab_profiles',
+                priority=100,
+                description='MOAB brand profiles',
+                prefix='MOAB ',
+                prefix_case_insensitive=True,
+                delimiter=' ',
+                structure=[
+                    FieldDefinition('paper_type', position='before_printer'),
+                    FieldDefinition('printer', match_type='key_search'),
+                    FieldDefinition('code', position='after_printer'),
+                ],
+                brand_value='MOAB',
+                paper_type_processing=PaperTypeProcessing(format=True),
+            ),
+            # EPSON SC- pattern
+            FilenamePattern(
+                name='epson_sc_files',
+                priority=90,
+                description='EPSON SC-P### EMY2 files',
+                prefix='EPSON SC-',
+                prefix_case_insensitive=False,
+                delimiter=' ',
+                structure=[
+                    FieldDefinition('printer', position=0),
+                    FieldDefinition('brand', position=1),
+                    FieldDefinition('paper_type', position='2+'),
+                ],
+                brand_value=None,
+                paper_type_processing=PaperTypeProcessing(format=True),
+            ),
+            # CIFA pattern
+            FilenamePattern(
+                name='cifa_profiles',
+                priority=80,
+                description='Canson/CIFA profiles',
+                prefix='cifa_',
+                prefix_case_insensitive=True,
+                delimiter='_',
+                structure=[
+                    FieldDefinition('printer', position=0),
+                    FieldDefinition('paper_type', position='1+'),
+                ],
+                brand_value='Canson',
+                paper_type_processing=PaperTypeProcessing(format=True),
+            ),
+            # HFA pattern
+            FilenamePattern(
+                name='hfa_profiles',
+                priority=85,
+                description='Hahnemuehle HFA profiles',
+                prefix='HFA',
+                prefix_case_insensitive=False,
+                delimiter='_',
+                structure=[
+                    FieldDefinition('printer', position=0),
+                    FieldDefinition('mk_pk', position=1),
+                    FieldDefinition('paper_type', position='2+'),
+                ],
+                brand_value='Hahnemuehle',
+                paper_type_processing=PaperTypeProcessing(format=True, remove_brand='Hahnemuehle'),
+                variants=[
+                    PatternVariant('HFAMetallic_', 12),
+                    PatternVariant('HFAPhoto_', 9),
+                    PatternVariant('HFA_', 4),
+                ],
+            ),
+            # Red River Papers pattern
+            FilenamePattern(
+                name='red_river_profiles',
+                priority=75,
+                description='Red River Papers Epson profiles',
+                prefix='RR ',
+                prefix_case_insensitive=False,
+                delimiter=' ',
+                structure=[
+                    FieldDefinition('paper_type', position='before_printer'),
+                    FieldDefinition('printer', match_type='key_search'),
+                ],
+                brand_value='Red River',
+                paper_type_processing=PaperTypeProcessing(format=True, remove_brand='Ep'),
+            ),
+            # Fallback pattern
+            FilenamePattern(
+                name='fallback_printer_detection',
+                priority=10,
+                description='Fallback printer detection',
+                prefix=None,
+                prefix_case_insensitive=True,
+                delimiter=' ',
+                structure=[
+                    FieldDefinition('printer', match_type='substring'),
+                    FieldDefinition('paper_type', position='remaining'),
+                ],
+                brand_value='Unknown',
+                paper_type_processing=PaperTypeProcessing(format=True),
+            ),
+        ]
+
+        self.pattern_matcher = PatternMatcher(patterns, self.PRINTER_NAMES,
+                                              self.BRAND_NAME_MAPPINGS, self._format_paper_type)
+        self.log("Using default pattern matcher")
 
     def _normalize_brand_name(self, brand: str) -> str:
         """Normalize brand names using the mappings."""
@@ -658,118 +1096,19 @@ class ProfileOrganizer:
     def extract_printer_and_paper_info(self, filename: str) -> Tuple[Optional[str], Optional[str], Optional[str]]:
         """
         Extract printer name, paper brand, and paper type from filename.
-        Handles both ICC and EMY2 file naming patterns.
+        Uses generalized pattern matching system defined in config.yaml.
 
         Returns:
             Tuple of (printer_name, paper_brand, paper_type)
         """
-        name_without_ext = Path(filename).stem
+        # Use the pattern matcher to parse the filename
+        result = self.pattern_matcher.match(filename)
 
-        # Normalize plus signs to spaces (for files like "MOAB+Lasal+Gloss+PRO-100+OGP.icc")
-        name_without_ext = name_without_ext.replace('+', ' ')
-
-        # Pattern 1: MOAB profiles
-        # "MOAB Anasazi Canvas PRO-100 MPP" -> Printer, Brand, Type
-        # Also handles hyphenated models: "MOAB Anasazi Canvas Matte P7570-P9570 ECM"
-        # Case-insensitive: handles "MOAB", "Moab", "moab" variants
-        if name_without_ext.upper().startswith('MOAB '):
-            # Skip past the "MOAB " prefix (5 chars), handling any case variant
-            moab_end = name_without_ext.find(' ') + 1
-            parts = name_without_ext[moab_end:].split()
-
-            # Find printer model (PRO-100, P900, P7570, iPF6450)
-            printer_key = None
-            printer_idx = -1
-            for i, part in enumerate(parts):
-                # Check if this part matches any printer key (exact or partial match for hyphenated models)
-                for key in self.PRINTER_NAMES.keys():
-                    if part.lower() == key.lower() or part == key or key.lower() in part.lower():
-                        printer_key = key
-                        printer_idx = i
-                        break
-                if printer_idx > -1:
-                    break
-
-            if printer_idx > 0:
-                paper_type = ' '.join(parts[:printer_idx])
-                # Format paper type: separate CamelCase
-                paper_type = self._format_paper_type(paper_type)
-                # Use the canonical key for lookup
-                printer_name = self.PRINTER_NAMES.get(printer_key, printer_key)
-                if not printer_name:
-                    # Fallback: try case-insensitive lookup
-                    for key, name in self.PRINTER_NAMES.items():
-                        if key.lower() == printer_key.lower():
-                            printer_name = name
-                            break
-                brand = self._normalize_brand_name('Moab')
-                printer_name = self._apply_printer_remapping(printer_name)
-                return printer_name, brand, paper_type
-
-        # Pattern 2: EPSON SC-P900 EMY2 files
-        # "EPSON SC-P900 Moab Entrada Rag Bright 190" -> Printer, Brand, Type
-        if name_without_ext.startswith('EPSON SC-'):
-            parts = name_without_ext.split()
-            if len(parts) >= 4:  # "EPSON SC-Pxxx Moab ..."
-                printer_model = parts[1]  # e.g., "SC-P900"
-                paper_brand = parts[2]  # e.g., "Moab"
-                paper_type = ' '.join(parts[3:]) if len(parts) > 3 else 'Unknown'
-                # Format paper type: separate CamelCase
-                paper_type = self._format_paper_type(paper_type)
-
-                # Normalize printer model and brand
-                printer_name = self.PRINTER_NAMES.get(printer_model, f"Epson {printer_model}")
-                brand = self._normalize_brand_name(paper_brand)
-                printer_name = self._apply_printer_remapping(printer_name)
-                return printer_name, brand, paper_type
-
-        # Pattern 3: Canson/CIFA profiles
-        # "cifa_pixmapro100_baryta2_310" -> Brand, Printer, Type
-        if name_without_ext.startswith('cifa_'):
-            parts = name_without_ext[5:].split('_')  # Remove "cifa_" prefix
-            if len(parts) >= 2:
-                printer_key = parts[0]
-                paper_type = '_'.join(parts[1:])
-                # Format paper type: separate CamelCase
-                paper_type = self._format_paper_type(paper_type)
-
-                printer_name = self.PRINTER_NAMES.get(printer_key, printer_key)
-                brand = self._normalize_brand_name('cifa')  # "cifa" -> "Canson"
-                printer_name = self._apply_printer_remapping(printer_name)
-                return printer_name, brand, paper_type
-
-        # Pattern 4: Hahnemuehle (HFA) profiles
-        # "HFA_Can6450_MK_PhotoRag308" or "HFAPhoto_Can6450_MK_..." -> Brand, Printer, Type
-        if name_without_ext.startswith('HFA'):
-            # Extract parts after HFA/HFAPhoto/HFAMetallic prefix
-            prefix_end = 0
-            if name_without_ext.startswith('HFAMetallic_'):
-                parts = name_without_ext[12:].split('_')  # Remove "HFAMetallic_" prefix
-            elif name_without_ext.startswith('HFAPhoto_'):
-                parts = name_without_ext[9:].split('_')  # Remove "HFAPhoto_" prefix
-            else:  # Just "HFA_"
-                parts = name_without_ext[4:].split('_')  # Remove "HFA_" prefix
-
-            if len(parts) >= 2:
-                printer_key = parts[0]
-                paper_type = '_'.join(parts[1:])
-                # Format paper type: remove Hahnemuehle brand name and separate by capitals
-                paper_type = self._format_paper_type(paper_type, remove_brand='Hahnemuehle')
-
-                printer_name = self.PRINTER_NAMES.get(printer_key, printer_key)
-                brand = self._normalize_brand_name('HFA')  # "HFA" -> "Hahnemuehle"
-                printer_name = self._apply_printer_remapping(printer_name)
-                return printer_name, brand, paper_type
-
-        # Fallback: try to extract printer from filename
-        for key, full_name in self.PRINTER_NAMES.items():
-            if key.lower() in name_without_ext.lower():
-                # Try to extract paper type as everything except printer
-                paper_type = name_without_ext.lower().replace(key.lower(), '').strip()
-                # Format paper type: separate CamelCase
-                paper_type = self._format_paper_type(paper_type)
-                full_name = self._apply_printer_remapping(full_name)
-                return full_name, 'Unknown', paper_type
+        if result:
+            printer_name, brand, paper_type = result
+            # Apply printer remappings
+            printer_name = self._apply_printer_remapping(printer_name)
+            return printer_name, brand, paper_type
 
         return None, None, None
 
@@ -1018,40 +1357,18 @@ class ProfileOrganizer:
     def _extract_printer_from_pdf_filename(self, filename: str) -> Optional[str]:
         """
         Extract printer name from PDF filename.
-        Handles patterns like:
-        - HFA_CanPro-100_MK_Printersettings_DE.pdf
-        - HFAPhoto_EpsSC-P9500_MK_Printersettings_EN.pdf
-        - HFAMetallic_Can6450_MK_...pdf
+        Uses the same pattern matcher as ICC profiles to ensure consistency.
 
         Returns the canonical printer name or None if not found.
         """
-        name_without_ext = Path(filename).stem
+        # Use pattern matcher to extract printer (will return tuple of printer, brand, paper_type)
+        result = self.pattern_matcher.match(filename)
 
-        # Check for HFA patterns (HFA_, HFAPhoto_, HFAMetallic_)
-        if name_without_ext.startswith('HFA'):
-            # Extract parts after HFA/HFAPhoto/HFAMetallic prefix
-            if name_without_ext.startswith('HFAMetallic_'):
-                parts = name_without_ext[12:].split('_')  # Remove "HFAMetallic_" prefix
-            elif name_without_ext.startswith('HFAPhoto_'):
-                parts = name_without_ext[9:].split('_')  # Remove "HFAPhoto_" prefix
-            else:  # Just "HFA_"
-                parts = name_without_ext[4:].split('_')  # Remove "HFA_" prefix
-
-            if len(parts) >= 1:
-                printer_key = parts[0]
-                # Look up in printer names
-                printer_name = self.PRINTER_NAMES.get(printer_key, None)
-                if printer_name:
-                    # Apply remapping if needed
-                    printer_name = self._apply_printer_remapping(printer_name)
-                    return printer_name
-
-        # Check for other patterns in filename
-        for key, full_name in self.PRINTER_NAMES.items():
-            if key.lower() in name_without_ext.lower():
-                # Found a printer key in the filename
-                full_name = self._apply_printer_remapping(full_name)
-                return full_name
+        if result:
+            printer_name, _, _ = result
+            # Apply remapping if needed
+            printer_name = self._apply_printer_remapping(printer_name)
+            return printer_name
 
         return None
 
