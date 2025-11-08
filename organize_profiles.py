@@ -520,75 +520,6 @@ class PatternMatcher:
 class ProfileOrganizer:
     """Organizes ICC profiles, EMX files, and PDFs."""
 
-    # Default configuration values (fallback if config.yaml not found)
-    DEFAULT_PRINTER_NAMES = {
-        'PRO-100': 'Canon Pixma PRO-100',
-        'Pro-100': 'Canon Pixma PRO-100',
-        'pro-100': 'Canon Pixma PRO-100',
-        'pixmapro100': 'Canon Pixma PRO-100',
-        'pro100': 'Canon Pixma PRO-100',
-        'CanPro-100': 'Canon Pixma PRO-100',
-        'CanPro100': 'Canon Pixma PRO-100',
-        'canpro-100': 'Canon Pixma PRO-100',
-        'canpro100': 'Canon Pixma PRO-100',
-        'CANPRO-100': 'Canon Pixma PRO-100',
-        'CANPRO100': 'Canon Pixma PRO-100',
-        'Can6450': 'Canon iPF6450',
-        'Can8400': 'Canon iPF8400',
-        'iPF6450': 'Canon iPF6450',
-        'ipf6450': 'Canon iPF6450',
-        'iPf6450': 'Canon iPF6450',  # Lowercase 'f' variant
-        'ipf6400': 'Canon iPF6450',  # Alternative naming
-        'IPF6400': 'Canon iPF6450',  # Red River Paper uses IPF6400
-        'iPFX400': 'Canon iPF6450',  # Red River Paper uses iPFX400 as generic placeholder
-        'P700': 'Epson P700',
-        'P900': 'Epson P900',
-        'SC-P700': 'Epson P700',
-        'SC-P900': 'Epson P900',
-        'EpsSC-P700': 'Epson P700',
-        'EpsSC-P900': 'Epson P900',
-        'EpsSC-P7570': 'Epson P7570',
-        'EpsSC-P9500': 'Epson P9500',
-        'p900': 'Epson P900',
-        'P7570': 'Epson P7570',
-        'SC-P7570': 'Epson P7570',
-        'p7570': 'Epson P7570',
-        'EpsSC-P7570': 'Epson P7570',
-        'Epson SureColor P7570': 'Epson P7570',
-        'P7500': 'Epson P7500',
-        'SC-P7500': 'Epson P7500',
-        'p7500': 'Epson P7500',
-        'P9570': 'Epson P9570',
-        'SC-P9570': 'Epson P9570',
-    }
-
-    # Default paper brands
-    DEFAULT_PAPER_BRANDS = ['Moab', 'Canson', 'Hahnemuehle']
-
-    # Default brand name mappings
-    DEFAULT_BRAND_NAME_MAPPINGS = {
-        'cifa': 'Canson',
-        'CIFA': 'Canson',
-        'canson': 'Canson',
-        'Canson': 'Canson',
-        'HFA': 'Hahnemuehle',
-        'hfa': 'Hahnemuehle',
-        'Hahnemuehle': 'Hahnemuehle',
-        'hahnemuehle': 'Hahnemuehle',
-        'MOAB': 'MOAB',
-        'Moab': 'MOAB',
-        'moab': 'MOAB',
-    }
-
-    # Default printer remappings (consolidate similar printers)
-    DEFAULT_PRINTER_REMAPPINGS = {
-        'Canon iPF8400': 'Canon iPF6450',
-        'Epson P700': 'Epson P900',
-        'Epson P7500': 'Epson P7570',
-        'Epson P9500': 'Epson P7570',
-        'Epson SureColor P7570': 'Epson P7570',
-    }
-
     def __init__(self, profiles_dir: str, output_dir: str = None, dry_run: bool = True, verbose: bool = False, interactive: bool = False, detailed: bool = False, update_descriptions: bool = True):
         """
         Initialize the organizer.
@@ -663,7 +594,11 @@ class ProfileOrganizer:
         getattr(self.logger, level.lower())(message)
 
     def _load_config(self):
-        """Load configuration from config.yaml, fallback to defaults."""
+        """Load configuration from defaults.yaml first, then override with config.yaml."""
+        # First, load defaults from defaults.yaml
+        self._load_defaults()
+
+        # Then, try to load and override with config.yaml
         config_path = Path(__file__).parent / 'config.yaml'
 
         if config_path.exists() and YAML_AVAILABLE:
@@ -673,33 +608,86 @@ class ProfileOrganizer:
 
                 # Load and flatten printer names from canonical_name: [aliases] format
                 printer_names_raw = config.get('printer_names', {})
-                self.PRINTER_NAMES = self._flatten_mapping(printer_names_raw)
+                if printer_names_raw:
+                    self.PRINTER_NAMES = self._flatten_mapping(printer_names_raw)
 
                 # Load paper brands
-                self.PAPER_BRANDS = config.get('paper_brands', self.DEFAULT_PAPER_BRANDS)
+                paper_brands = config.get('paper_brands')
+                if paper_brands:
+                    self.PAPER_BRANDS = paper_brands
 
                 # Load and flatten brand name mappings from canonical_name: [aliases] format
                 brand_mappings_raw = config.get('brand_name_mappings', {})
-                self.BRAND_NAME_MAPPINGS = self._flatten_mapping(brand_mappings_raw)
+                if brand_mappings_raw:
+                    self.BRAND_NAME_MAPPINGS = self._flatten_mapping(brand_mappings_raw)
 
                 # Load printer remappings (optional)
-                self.PRINTER_REMAPPINGS = config.get('printer_remappings', {})
+                printer_remappings = config.get('printer_remappings')
+                if printer_remappings:
+                    self.PRINTER_REMAPPINGS = printer_remappings
 
                 # Load filename patterns and build PatternMatcher
                 patterns_raw = config.get('filename_patterns', [])
-                self._build_pattern_matcher(patterns_raw)
+                if patterns_raw:
+                    self._build_pattern_matcher(patterns_raw)
+                else:
+                    self._build_default_pattern_matcher()
 
                 self.log(f"Loaded configuration from {config_path}")
                 return
             except Exception as e:
                 self.log(f"Warning: Could not load config.yaml: {e}", level='WARNING')
-
-        # Use defaults if config not found or couldn't be parsed
-        self.PRINTER_NAMES = self.DEFAULT_PRINTER_NAMES
-        self.PAPER_BRANDS = self.DEFAULT_PAPER_BRANDS
-        self.BRAND_NAME_MAPPINGS = self.DEFAULT_BRAND_NAME_MAPPINGS
-        self.PRINTER_REMAPPINGS = self.DEFAULT_PRINTER_REMAPPINGS
+        
+        # If config.yaml not found, just use defaults (already loaded)
         self._build_default_pattern_matcher()
+
+    def _load_defaults(self):
+        """Load default configuration from defaults.yaml."""
+        defaults_path = Path(__file__).parent / 'defaults.yaml'
+
+        if defaults_path.exists() and YAML_AVAILABLE:
+            try:
+                with open(defaults_path, 'r') as f:
+                    defaults = yaml.safe_load(f) or {}
+
+                # Load and flatten printer names from canonical_name: [aliases] format
+                printer_names_raw = defaults.get('printer_names', {})
+                self.PRINTER_NAMES = self._flatten_mapping(printer_names_raw)
+
+                # Load paper brands
+                self.PAPER_BRANDS = defaults.get('paper_brands', ['Moab', 'Canson', 'Hahnemuehle'])
+
+                # Load and flatten brand name mappings from canonical_name: [aliases] format
+                brand_mappings_raw = defaults.get('brand_name_mappings', {})
+                self.BRAND_NAME_MAPPINGS = self._flatten_mapping(brand_mappings_raw)
+
+                # Load printer remappings
+                self.PRINTER_REMAPPINGS = defaults.get('printer_remappings', {})
+
+                self.log(f"Loaded default configuration from {defaults_path}")
+            except Exception as e:
+                self.log(f"Warning: Could not load defaults.yaml: {e}", level='WARNING')
+                self._set_hardcoded_defaults()
+        else:
+            # If defaults.yaml not found, use hardcoded fallback
+            self.log("defaults.yaml not found, using hardcoded defaults", level='WARNING')
+            self._set_hardcoded_defaults()
+
+    def _set_hardcoded_defaults(self):
+        """Set hardcoded default values as final fallback."""
+        # Minimal hardcoded defaults as ultimate fallback
+        self.PRINTER_NAMES = {
+            'PRO-100': 'Canon Pixma PRO-100',
+            'P900': 'Epson P900',
+            'P7570': 'Epson P7570',
+        }
+        self.PAPER_BRANDS = ['Moab', 'Canson', 'Hahnemuehle']
+        self.BRAND_NAME_MAPPINGS = {
+            'MOAB': 'MOAB',
+            'Moab': 'MOAB',
+            'moab': 'MOAB',
+        }
+        self.PRINTER_REMAPPINGS = {}
 
     def _flatten_mapping(self, mapping: Dict[str, List[str]]) -> Dict[str, str]:
         """

@@ -1,0 +1,90 @@
+# Default configuration values for ICC Profile Organizer
+# These serve as fallback values if config.yaml is not found or incomplete
+
+# Printer name mappings (alias: canonical name)
+printer_names:
+  "Canon Pixma PRO-100":
+    - "PRO-100"
+    - "Pro-100"
+    - "pro-100"
+    - "pixmapro100"
+    - "pro100"
+    - "CanPro-100"
+    - "CanPro100"
+    - "canpro-100"
+    - "canpro100"
+    - "CANPRO-100"
+    - "CANPRO100"
+  "Canon iPF6450":
+    - "Can6450"
+    - "iPF6450"
+    - "ipf6450"
+    - "iPf6450"
+    - "ipf6400"
+    - "IPF6400"
+    - "iPFX400"
+  "Canon iPF8400":
+    - "Can8400"
+  "Epson P700":
+    - "P700"
+    - "SC-P700"
+    - "EpsSC-P700"
+    - "p700"
+  "Epson P900":
+    - "P900"
+    - "SC-P900"
+    - "EpsSC-P900"
+    - "p900"
+  "Epson P7570":
+    - "P7570"
+    - "SC-P7570"
+    - "p7570"
+    - "EpsSC-P7570"
+    - "Epson SureColor P7570"
+    - "7570"
+  "Epson P7500":
+    - "P7500"
+    - "SC-P7500"
+    - "p7500"
+  "Epson P9500":
+    - "EpsSC-P9500"
+  "Epson P9570":
+    - "P9570"
+    - "SC-P9570"
+    - "9570"
+
+# Paper brand names
+paper_brands:
+  - Moab
+  - Canson
+  - Hahnemuehle
+  - Red River
+
+# Brand name mappings (alias: canonical name)
+brand_name_mappings:
+  "Canson":
+    - "cifa"
+    - "CIFA"
+    - "canson"
+    - "Canson"
+  "Hahnemuehle":
+    - "HFA"
+    - "hfa"
+    - "Hahnemuehle"
+    - "hahnemuehle"
+  "MOAB":
+    - "MOAB"
+    - "Moab"
+    - "moab"
+  "Red River":
+    - "Red River"
+    - "red river"
+    - "RR"
+
+# Printer remappings (consolidate similar printers for multi-printer profiles, since you probably won't have both printers at the same time)
+printer_remappings:
+  "Canon iPF8400": "Canon iPF6450"
+  "Epson P700": "Epson P900"
+  "Epson P7500": "Epson P7570"
+  "Epson P9500": "Epson P7570"
+  "Epson SureColor P7570": "Epson P7570"
