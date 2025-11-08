@@ -467,6 +467,7 @@ class ProfileOrganizer:
 
         Example: "PhotoLuster260" -> "Photo Luster 260"
                  "HahnemuehlePhotoLuster260" -> "Photo Luster 260" (with remove_brand="Hahnemuehle")
+                 "aqua310" -> "Aqua 310"
         """
         import re
 
@@ -488,6 +489,11 @@ class ProfileOrganizer:
 
         # Clean up multiple spaces
         cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+
+        # Title case: capitalize first letter of each word
+        if cleaned:
+            cleaned = ' '.join(word[0].upper() + word[1:] if word else word
+                              for word in cleaned.split())
 
         return cleaned
 
