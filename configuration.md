@@ -2,6 +2,8 @@
 
 This guide covers the configuration system for the ICC Profile Organizer, including the `config.yaml` structure, filename pattern matching, and advanced features.
 
+> **Note:** You can build configuration manually using YAML, or optionally use the interactive TUI (`python3 config_wizard.py`) which is currently in early development.
+
 **Quick Links:**
 
 - [Back to README](README.md) - Installation and quick start
@@ -403,7 +405,7 @@ python3 organize_profiles.py ./profiles --execute --no-system-profiles-prompt  #
 
 ## Features
 
-✅ **Interactive TUI** - Build and manage configuration with an easy-to-use terminal interface
+⚠️ **Interactive TUI (WIP)** - Build and manage configuration with an easy-to-use terminal interface (`python3 config_wizard.py`). Currently in early development; manual YAML editing is fully supported.
 
 ✅ **Generalized Pattern Matching** - Define custom filename parsing patterns in config.yaml without code changes
 

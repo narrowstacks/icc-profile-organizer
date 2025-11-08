@@ -1,3 +1,4 @@
 PyYAML>=6.0
 Pillow>=9.0
 textual>=0.40.0
+rich>=14.2.0

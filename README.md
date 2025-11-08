@@ -57,20 +57,22 @@ python3 organize_profiles.py ./profiles --execute
 python3 organize_profiles.py ./profiles --interactive --execute
 ```
 
-## Interactive TUI (Config Builder)
+## Interactive TUI (Config Wizard) - VERY WORK IN PROGRESS
 
 Build and manage configuration interactively instead of manually editing `config.yaml`:
 
 ```bash
-python3 profile_config_tui.py
+python3 config_wizard.py
 ```
 
-**Features:**
+**Features (WIP):**
 
 - **Scan Profiles** - Auto-detect printer/brand from filenames, see detection rate
 - **Fix Undetected** - Create mappings for unrecognized profiles with smart suggestions
 - **Edit Configuration** - Manage printer names, brand mappings, and remappings
 - **Preview Organization** - See how files will be organized before executing
+
+> **Note:** The config wizard TUI is still in early development. The core organization tool (`organize_profiles.py`) is stable and fully featured. The TUI is an optional convenience tool for building configuration, but manual YAML editing is fully supported and reliable.
 
 The TUI includes smart features like pattern reuse and auto-processing to minimize manual work. See the [Configuration Guide](configuration.md) for detailed documentation.
 
