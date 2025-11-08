@@ -2,6 +2,12 @@
 
 A smart tool that automatically organizes ICC color profiles, EMX/EMY2 files, and PDFs by printer model and paper brand. Supports flexible configuration, automatic filename parsing, and system profile installation.
 
+Instead of ICC profiles with names like `MOAB Anasazi Canvas PRO-100 MPP.icc`, you will end up with a name like `Canon Pixma PRO-100 - MOAB - Anasazi Canvas.icc`.
+
+This is helpful for businesses or users with multiple printers, in particular those using Adobe products, whose print dialog color profile selection menu is woefully inadequate for those who have multiple printers and use various brands of paper with those printers.
+
+Instead of having an unorganized list ordered by what the paper brand's file naming scheme is, this tool provides an easily readable list of profiles in alphabetical order, ordered by printer manufacturer, printer model, and paper brand in that order.
+
 **📖 [Detailed Configuration Guide →](configuration.md)**
 
 ## What It Does
