@@ -1,15 +1,16 @@
 [build-system]
-requires = ["setuptools>=68.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["uv_build>=0.11.25,<0.12"]
+build-backend = "uv_build"
 
 [project]
 name = "icc-profile-organizer"
 version = "0.1.0"
 description = "A smart tool that automatically organizes ICC color profiles, EMX/EMY2 files, and PDFs by printer model and paper brand"
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "narrowstacks" }]
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 dependencies = [
     "PyYAML>=6.0",
     "Pillow>=12.0.0",
@@ -21,12 +22,9 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Console",
     "Intended Audience :: End Users/Desktop",
-    "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -39,13 +37,10 @@ Homepage = "https://github.com/narrowstacks/icc-profile-organizer"
 Repository = "https://github.com/narrowstacks/icc-profile-organizer"
 
 [project.scripts]
-icc-organizer = "organize_profiles:main"
-icc-config-wizard = "config_wizard:main"
-icc-update-descriptions = "update_profile_descriptions:main"
+icc-organizer = "icc_profile_organizer.organize_profiles:main"
+icc-config-wizard = "icc_profile_organizer.config_wizard:main"
 
-[tool.setuptools]
-packages = ["lib"]
-py-modules = ["organize_profiles", "config_wizard", "update_profile_descriptions"]
-
-[tool.setuptools.package-data]
-lib = ["**/*.yaml", "**/*.yml"]
+# src/ layout: the single importable package is icc_profile_organizer.
+# module-root defaults to "src", so only the module name needs to be set.
+[tool.uv.build-backend]
+module-name = "icc_profile_organizer"

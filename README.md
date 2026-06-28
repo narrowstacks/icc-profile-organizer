@@ -23,36 +23,30 @@ Supports profiles from MOAB, Canson, Hahnemuehle, Red River, EPSON, and more. Se
 
 ## Installation
 
-### Using a Virtual Environment (Recommended)
+This project uses [uv](https://docs.astral.sh/uv/) to manage the Python
+environment and dependencies.
 
-#### macOS
-
-```bash
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate
-
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-#### Windows
+### Install uv
 
 ```bash
-# Create and activate virtual environment
-python -m venv venv
-venv\Scripts\activate
+# macOS / Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Install dependencies
-pip install -r requirements.txt
+# Windows (PowerShell)
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-### Quick Install
+### Set up the project
 
 ```bash
-pip install -r requirements.txt
+# Create the virtual environment and install all dependencies from
+# pyproject.toml (pinned by uv.lock)
+uv sync
 ```
+
+uv creates and manages the `.venv` for you — there's no need to manually create
+or activate a virtual environment. Prefix commands with `uv run` to execute them
+inside the project environment.
 
 ## Quick Start
 
@@ -61,13 +55,13 @@ pip install -r requirements.txt
 Replace `./profiles` with the location of your folder of ICC profiles. The entire directory's contents and folders will be scanned, so no need to put all files in one folder.
 
 ```bash
-python organize_profiles.py ./profiles
+uv run icc-organizer ./profiles
 ```
 
 ### Apply changes
 
 ```bash
-python organize_profiles.py ./profiles --execute
+uv run icc-organizer ./profiles --execute
 ```
 
 ### Interactive mode
@@ -75,7 +69,7 @@ python organize_profiles.py ./profiles --execute
 Interactive mode will ask you if you want to consolidate the names of a printer type, if an ICC profile states that it's for multiple printers. An example would be the Epson SureColor P7570 and P9570 often sharing identical ICC profiles, but you likely don't own both printers.
 
 ```bash
-python organize_profiles.py ./profiles --interactive --execute
+uv run icc-organizer ./profiles --interactive --execute
 ```
 
 ## Command-Line Options
@@ -84,22 +78,22 @@ python organize_profiles.py ./profiles --interactive --execute
 
 ```bash
 # Dry-run preview (safe, no changes)
-python organize_profiles.py ./profiles
+uv run icc-organizer ./profiles
 
 # Execute changes
-python organize_profiles.py ./profiles --execute
+uv run icc-organizer ./profiles --execute
 
 # Interactive mode (for multi-printer profiles)
-python organize_profiles.py ./profiles --interactive --execute
+uv run icc-organizer ./profiles --interactive --execute
 
 # Custom output directory
-python organize_profiles.py ./profiles --output-dir ./custom-dir --execute
+uv run icc-organizer ./profiles --output-dir ./custom-dir --execute
 
 # Detailed file-by-file output
-python organize_profiles.py ./profiles --detailed
+uv run icc-organizer ./profiles --detailed
 
 # Copy to system ICC profile directory
-python organize_profiles.py ./profiles --execute --system-profiles
+uv run icc-organizer ./profiles --execute --system-profiles
 ```
 
 **Additional options:** `--profiles-only`, `--pdfs-only`, `--quiet`, `--skip-desc-update`
@@ -111,7 +105,7 @@ See the [Configuration Guide](configuration.md) for complete command-line refere
 Build and manage configuration interactively instead of manually editing `config.yaml`:
 
 ```bash
-python config_wizard.py
+uv run icc-config-wizard
 ```
 
 **Features (WIP):**
@@ -156,10 +150,10 @@ Two options:
 
 ```bash
 # Will prompt for system or user directory
-python organize_profiles.py ./profiles --execute --system-profiles
+uv run icc-organizer ./profiles --execute --system-profiles
 
 # Or use sudo for system directory
-sudo python organize_profiles.py ./profiles --execute --system-profiles
+sudo uv run icc-organizer ./profiles --execute --system-profiles
 ```
 
 ### Windows
@@ -168,7 +162,7 @@ Requires administrator privileges:
 
 ```bash
 # Run Command Prompt/PowerShell as Administrator, then:
-   python organize_profiles.py ./profiles --execute --system-profiles
+   uv run icc-organizer ./profiles --execute --system-profiles
 ```
 
 **Note:** Windows uses a flat structure (due to Windows not reading folders inside of the colors directory); macOS preserves folder organization.

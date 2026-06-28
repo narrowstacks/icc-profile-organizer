@@ -17,15 +17,20 @@ Key features:
 
 ## Architecture
 
-### Core Modules (lib/)
+The project uses a `src/` layout: the importable package is
+`src/icc_profile_organizer/`, containing the two CLI modules and the `lib/`
+core-library subpackage. The CLI modules import the library via
+`from icc_profile_organizer.lib import ...`.
 
-- **pattern_matching.py** - Unified pattern matching engine. Defines `FilenamePattern`, `PatternVariant`, and `PatternMatcher` classes. Patterns are sorted by priority and evaluated sequentially.
-- **config_manager.py** - Loads two-tier configuration (defaults.yaml → config.yaml override). Initializes PatternMatcher with loaded patterns and name mappings.
+### Core Modules (src/icc_profile_organizer/lib/)
+
+- **pattern_matching.py** - Unified pattern matching engine. Defines `FilenamePattern`, `PatternVariant`, `PatternMatcher`, and the module-level `format_paper_type()`. Patterns are sorted by priority and evaluated sequentially.
+- **config_manager.py** - Loads two-tier configuration (packaged defaults.yaml → cwd config.yaml override). Builds the PatternMatcher and exposes `match_filename()` plus the flattened name mappings (`PRINTER_NAMES`, `BRAND_NAME_MAPPINGS`, `PAPER_BRANDS`, `PRINTER_REMAPPINGS`).
 - **icc_utils.py** - ICCProfileUpdater class for reading/writing ICC profile descriptions
-- **file_scanning.py** - Finds profile files in directory tree
-- **filename_utils.py** - extract_printer_and_paper_info() uses PatternMatcher to parse filenames. generate_new_filename() constructs standardized output names.
+- **file_scanning.py** - find_profile_files() finds ICC/ICM/EMY2 files in a directory tree
+- **filename_utils.py** - generate_new_filename() constructs standardized output names (filename parsing lives in ConfigManager.match_filename())
 - **file_operations.py** - execute_copy_operations() performs actual file copying with directory creation
-- **pdf_utils.py** - PDF duplicate detection using SHA-256 hashing
+- **pdf_utils.py** - PDF duplicate detection using SHA-256 hashing (hash_file, find_pdf_duplicates, is_duplicate_file, get_duplicate_paths, delete_duplicate_files)
 - **printer_utils.py** - Interactive printer selection for multi-printer profiles, printer remapping application
 - **system_profiles.py** - OS-specific profile installation (macOS ColorSync, Windows system directory)
 - **user_preferences.py** - JSON-based persistence of user's interactive choices
@@ -33,9 +38,16 @@ Key features:
 
 ### Entry Points
 
-- **organize_profiles.py** - Main CLI. Creates ProfileOrganizer instance, runs analysis, prompts for interactive decisions, executes operations
-- **config_wizard.py** - Interactive TUI for configuration building (currently WIP). Scans profiles, identifies undetected files, guides pattern creation
-- **update_profile_descriptions.py** - Standalone utility to update ICC profile descriptions in existing organized directories
+Both are exposed as console scripts via `[project.scripts]` (run with
+`uv run icc-organizer` / `uv run icc-config-wizard`).
+
+- **src/icc_profile_organizer/organize_profiles.py** (`icc-organizer`) - Main CLI. Creates ProfileOrganizer instance, runs analysis, prompts for interactive decisions, executes operations
+- **src/icc_profile_organizer/config_wizard.py** (`icc-config-wizard`) - Interactive TUI for configuration building (currently WIP). Scans profiles, identifies undetected files, guides pattern creation
+
+The shipped **defaults.yaml** lives inside the package
+(`src/icc_profile_organizer/defaults.yaml`) and is loaded via
+`importlib.resources`. The optional user **config.yaml** is read from the
+current working directory.
 
 ## Configuration System
 
@@ -59,34 +71,34 @@ Pattern matching is priority-based (higher priority evaluated first). Each patte
 
 ```bash
 # Preview changes (dry-run)
-python organize_profiles.py ./profiles
+uv run icc-organizer ./profiles
 
 # Execute changes
-python organize_profiles.py ./profiles --execute
+uv run icc-organizer ./profiles --execute
 
 # Interactive mode (for multi-printer profiles)
-python organize_profiles.py ./profiles --interactive --execute
+uv run icc-organizer ./profiles --interactive --execute
 
 # Custom output directory
-python organize_profiles.py ./profiles --output-dir ./custom --execute
+uv run icc-organizer ./profiles --output-dir ./custom --execute
 
 # Detailed output (file-by-file instead of summary)
-python organize_profiles.py ./profiles --detailed
+uv run icc-organizer ./profiles --detailed
 
 # Copy to system profiles
-python organize_profiles.py ./profiles --execute --system-profiles
+uv run icc-organizer ./profiles --execute --system-profiles
 
 # Only profiles (skip PDFs)
-python organize_profiles.py ./profiles --profiles-only --execute
+uv run icc-organizer ./profiles --profiles-only --execute
 
 # Only PDFs (skip profiles)
-python organize_profiles.py ./profiles --pdfs-only --execute
+uv run icc-organizer ./profiles --pdfs-only --execute
 ```
 
 ### Configuration Wizard (TUI)
 
 ```bash
-python config_wizard.py
+uv run icc-config-wizard
 ```
 
 Currently WIP. Provides:
@@ -98,20 +110,27 @@ Currently WIP. Provides:
 
 ### Building and Installing
 
+This project uses [uv](https://docs.astral.sh/uv/) with the `uv_build` backend.
+
 ```bash
-# Install in development mode
-pip install -e .
+# Sync the environment (creates .venv, installs deps, writes/updates uv.lock)
+uv sync
 
-# Build distribution
-python -m build
+# Add or remove a dependency (updates pyproject.toml and uv.lock)
+uv add <package>
+uv remove <package>
 
-# Install from distribution
-pip install dist/icc_profile_organizer-*.tar.gz
+# Build distribution (sdist + wheel into dist/)
+uv build
+
+# Install the built distribution elsewhere with uv (or pip)
+uv pip install dist/icc_profile_organizer-*.whl
 ```
 
 ### Dependencies
 
-Core dependencies (from requirements.txt):
+Dependencies are declared in `pyproject.toml` (`[project.dependencies]`) and
+pinned in `uv.lock`. There is no `requirements.txt`.
 
 - PyYAML >= 6.0 - Configuration file parsing
 - Pillow >= 12.0.0 - ICC profile description manipulation

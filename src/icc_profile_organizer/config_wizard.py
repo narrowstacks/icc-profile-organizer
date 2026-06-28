@@ -28,14 +28,13 @@ from rich.text import Text
 from rich.table import Table
 from rich import box
 
-# Import from lib
-sys.path.insert(0, str(Path(__file__).parent))
-from lib import (
+# Import from the package's core library
+from icc_profile_organizer.lib import (
     ConfigManager,
     find_profile_files,
     generate_new_filename,
 )
-from lib.pattern_matching import format_paper_type
+from icc_profile_organizer.lib.pattern_matching import format_paper_type
 
 
 @dataclass

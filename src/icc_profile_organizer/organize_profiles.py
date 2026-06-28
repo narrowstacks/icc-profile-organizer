@@ -16,7 +16,7 @@ try:
 except ImportError:
     HAS_RICH = False
 
-from lib import (
+from icc_profile_organizer.lib import (
     ICCProfileUpdater,
     ConfigManager,
     UserPreferences,

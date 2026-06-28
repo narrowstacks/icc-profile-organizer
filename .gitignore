@@ -14,7 +14,9 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+# NOTE: `lib/` is this project's source package, not a build artifact, so it
+# must NOT be ignored. The stock Python .gitignore lists `lib/` for distutils
+# build output; that rule is intentionally omitted here.
 lib64/
 parts/
 sdist/

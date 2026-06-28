@@ -2,7 +2,7 @@
 
 This guide covers the configuration system for the ICC Profile Organizer, including the `config.yaml` structure, filename pattern matching, and advanced features.
 
-> **Note:** You can build configuration manually using YAML, or optionally use the interactive TUI (`python3 config_wizard.py`) which is currently in early development.
+> **Note:** You can build configuration manually using YAML, or optionally use the interactive TUI (`uv run icc-config-wizard`) which is currently in early development.
 
 **Quick Links:**
 
@@ -458,7 +458,7 @@ python3 organize_profiles.py ./profiles --execute --no-system-profiles-prompt  #
 
 - Windows requires administrator privileges to write to the system profile directory
 - Right-click Command Prompt/PowerShell → "Run as administrator"
-- Then run: `python organize_profiles.py ./profiles --execute --system-profiles`
+- Then run: `uv run icc-organizer ./profiles --execute --system-profiles`
 
 **Profiles aren't showing up in applications after copying:**
 
@@ -468,8 +468,8 @@ python3 organize_profiles.py ./profiles --execute --no-system-profiles-prompt  #
 
 ## Fallback Behavior
 
-If `config.yaml` is missing or PyYAML isn't installed, the organizer automatically uses built-in defaults. PyYAML is included in `requirements.txt`, so install it via:
+If `config.yaml` is missing or PyYAML isn't installed, the organizer automatically uses built-in defaults. PyYAML is a project dependency, so it's installed when you set up the environment via:
 
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
