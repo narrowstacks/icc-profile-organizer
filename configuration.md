@@ -200,7 +200,10 @@ Handles Red River Papers profiles and documentation files.
 
 **Format (ICC Profiles):** `RR [PaperType...] [PrinterInfo]`
 
-**Format (EMY2 Documentation):** `Red River Paper_RR [PaperType]`
+**Format (EMY2/AM1 media presets, no printer in the name):**
+`Red River Paper_RR [PaperType].emy2`, `RR [PaperType].am1`, `RRArcPolGloss.am1`
+— the printer comes from the enclosing folder (the vendor's zip name), see
+[Printer from the folder](#printer-from-the-folder).
 
 **Supported Printer Models:**
 
@@ -213,7 +216,7 @@ Handles Red River Papers profiles and documentation files.
 
 - `RR Arctic Polar Luster Ep 7570-9750.icc` → Printer: Epson P7570, Brand: Red River, Type: Arctic Polar Luster
 - `RR Palo Duro Matte Canvas P9570 P7570.icc` → Printer: Epson P7570, Brand: Red River, Type: Palo Duro Matte Canvas
-- `Red River Paper_RR Aurora Natural 250.emy2` → Printer: Unknown, Brand: Red River, Type: Aurora Natural 250
+- `Red River Paper_RR Aurora Natural 250.emy2` (inside `Red River Paper Epson P700 P900 ICC Profiles v2.1/`) → Printer: Epson P900, Brand: Red River, Type: Aurora Art Natural 250
 
 #### 6. ILFORD Galerie Profiles (Priority: 95)
 
@@ -422,6 +425,32 @@ Once a pattern matches, the organizer automatically:
 2. **Normalizes brand names** - Uses `brand_name_mappings`
 3. **Formats paper type** - CamelCase separation, brand removal if configured
 4. **Applies remappings** - Uses `printer_remappings` to consolidate printers
+
+A pattern yields to the next one (instead of producing `Unknown`) when it
+defines a `paper_type` field but could not extract it, when a positional
+`printer` field holds no known alias, or when a `brand_search` field finds
+no brand and there is no `brand_fallback`.
+
+### Printer from the folder
+
+Media presets (`.emy2`, `.am1x`, `.am1`) often carry no printer in their
+name; the vendor's zip folder does (`rr-canon-ipf6400-profiles-all`,
+`Red River Paper Epson 7570 9570 ICC Profiles v1.2`). When a pattern
+returns `Unknown` for the printer, the organizer walks up the parent
+directories inside the scanned tree and uses the first folder name that
+contains a printer alias (same bounded, longest-wins matching), then applies
+`printer_remappings`. Keep vendor downloads in their own folders and this
+resolves itself.
+
+### File types
+
+`.icc`/`.icm` profiles are renamed, get their embedded description rewritten
+and are the only files installed into ColorSync. `.emy2` (Epson media
+presets) and `.am1x`/`.am1` (Canon imagePROGRAF PRO / iPF media presets)
+are organized and renamed alongside them so the vendor's media setting sits
+next to its profile; they are never edited or installed. A profile and its
+preset share a stem (`… - Photo Rag 308.icc` / `.am1x`) — the `[N]`
+collision suffix is per extension.
 
 ### Example: Adding a Canon MP Series Pattern
 

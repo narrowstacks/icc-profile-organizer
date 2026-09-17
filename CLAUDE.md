@@ -6,7 +6,8 @@ this file. User-facing docs: [README.md](README.md) (usage) and
 
 ## What this tool does
 
-`icc-organizer` copies ICC/ICM/EMY2 printer profiles (and vendor PDFs) from a
+`icc-organizer` copies ICC/ICM printer profiles, their EMY2/AM1X media
+presets (and vendor PDFs) from a
 messy source tree into `Printer/Brand/` folders, renaming each file **and its
 embedded ICC description** to:
 
@@ -58,6 +59,10 @@ there is no `requirements.txt`.
 - **Paper names must be ASCII** — the ICC `desc` tag writer replaces anything
   else with `?` and the verify step (description == stem) then fails.
   `Albrecht Duerer`, `Hahnemuehle`.
+- **Printer-less names get their printer from the folder.** emy2/am1x
+  presets like `RR Polar Matte.am1` resolve via the vendor zip's folder name
+  (`organize_profiles._printer_from_parent_dirs`). Keep downloads in their
+  own folder under `profiles/`; a flat dump loses that.
 - **Filename patterns come from exactly one place.** `config.yaml`'s
   `filename_patterns` if present, else the hardcoded list in
   `config_manager._build_default_pattern_matcher()`. `defaults.yaml` carries

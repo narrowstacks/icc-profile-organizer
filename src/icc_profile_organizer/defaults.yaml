@@ -87,6 +87,7 @@ printer_names:
     - Pro_2000
     - CANpro-2_4_6_21_41_61   # Ilford: one set for PRO-2000/4000/6000/2100/4100/6100
     - Canpro2_4_6_21_41_61
+    - CAN_pro_2_4_6_21_41_61
     - CANpro-2
   Canon imagePROGRAF PRO-4000:
     - PRO-4000

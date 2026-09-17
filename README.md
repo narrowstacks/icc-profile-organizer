@@ -8,7 +8,9 @@ ILFORD_EPSCX500_GPGFS_PGPP250.icc          →  Epson P7570/Ilford/Epson P7570 -
 HFA_Can6450_MK_PhotoRag308.icc             →  Canon iPF6450/Hahnemuehle/Canon iPF6450 - Hahnemuehle - Photo Rag 308.icc
 ```
 
-Both the filename **and the description embedded in the ICC file** are
+Epson `.emy2` and Canon `.am1x`/`.am1` media presets that ship next to the
+profiles are renamed the same way and filed beside them (never edited or
+installed). Both the filename **and the description embedded in the ICC file** are
 rewritten, so the print dialog in Photoshop, Lightroom, etc. shows one
 alphabetical list grouped by printer, then paper brand, then paper — instead
 of whatever abbreviation scheme each paper vendor happened to use.

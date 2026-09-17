@@ -179,6 +179,11 @@ class ProfileOrganizer:
                 self.log(f"  ⚠ Could not parse: {file_path.name}", level='WARNING')
                 continue
 
+            # Media presets (emy2/am1x) often carry no printer in the name;
+            # the vendor's zip folder does ("Red River Paper Epson 7570 9570 …").
+            if printer == 'Unknown':
+                printer = self._printer_from_parent_dirs(file_path) or printer
+
             # Use interactive mode if enabled to choose printer for multi-printer files
             candidates = find_printer_candidates(file_path.name, self.config_manager.PRINTER_NAMES)
             if len(candidates) > 1:
@@ -291,30 +296,29 @@ class ProfileOrganizer:
 
         return True
 
+    def _printer_from_parent_dirs(self, file_path: Path) -> Optional[str]:
+        """Canonical printer named by the nearest parent directory, or None.
+
+        Uses the same bounded, longest-wins alias lookup as filenames, so
+        "rr-canon-ipf6400-profiles-all" and "Epson 7570 9570 ICC Profiles"
+        both resolve. Stops at the scanned profiles directory.
+        """
+        index = self.config_manager.pattern_matcher.printers
+        for parent in file_path.parents:
+            if parent == self.profiles_dir or parent == self.profiles_dir.parent:
+                break
+            hit = index.find(parent.name.replace('_', ' '))
+            if hit:
+                return apply_printer_remapping(index.canonical(hit[0]),
+                                               self.config_manager.PRINTER_REMAPPINGS)
+        return None
+
     def _extract_printer_from_context(self, file_path: Path) -> Optional[str]:
         """Extract printer name from file path context (filename first, then parent dirs)."""
-        # First, try to extract from filename
         result = self.config_manager.match_filename(file_path.name)
-        if result:
-            printer_name, _, _ = result
-            return apply_printer_remapping(printer_name, self.config_manager.PRINTER_REMAPPINGS)
-
-        # Check parent directory name and all parents
-        for parent in [file_path.parent] + list(file_path.parents):
-            parent_name = parent.name
-
-            # Look for exact and case-insensitive matches
-            for key, full_name in self.config_manager.PRINTER_NAMES.items():
-                if key.lower() in parent_name.lower():
-                    return apply_printer_remapping(full_name, self.config_manager.PRINTER_REMAPPINGS)
-
-            # Special handling for patterns like "IPF 6450" vs "iPF6450"
-            if 'iPF6450' in parent_name or 'ipf6450' in parent_name or 'IPF 6450' in parent_name or 'ipf 6450' in parent_name:
-                return 'Canon iPF6450'
-            if 'PRO-100' in parent_name or 'Pro-100' in parent_name or 'pro-100' in parent_name:
-                return 'Canon Pixma PRO-100'
-
-        return 'Uncategorized'
+        if result and result[0] != 'Unknown':
+            return apply_printer_remapping(result[0], self.config_manager.PRINTER_REMAPPINGS)
+        return self._printer_from_parent_dirs(file_path) or 'Uncategorized'
 
     def update_profile_descriptions(self) -> bool:
         """

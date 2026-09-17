@@ -172,6 +172,9 @@ class PatternMatcher:
             brand = extracted['brand']
         elif pattern.brand_fallback is not None:
             brand = pattern.brand_fallback
+        elif any(f.match_type == 'brand_search' for f in pattern.structure):
+            # A brand_search field without a fallback is a requirement.
+            return None
         else:
             brand = 'Unknown'
 
@@ -181,6 +184,11 @@ class PatternMatcher:
             if pattern.brand_value is None and brand == 'Unknown':
                 return None
             extracted['printer'] = 'Unknown'
+
+        # A pattern that asks for a paper type but could not find one (usually
+        # because no printer token anchored it) yields to the next pattern.
+        if 'paper_type' not in extracted and any(f.field == 'paper_type' for f in pattern.structure):
+            return None
 
         brand = self._normalize_brand(brand)
         paper_type = self._process_paper_type(extracted.get('paper_type', 'Unknown'), pattern)
@@ -248,8 +256,7 @@ class PatternMatcher:
             part = parts[field_def.position]
             if field_def.field == 'printer':
                 hit = self.printers.find(part)
-                # No match found, return the raw part (may match later)
-                return self.printers.canonical(hit[0]) if hit else part
+                return self.printers.canonical(hit[0]) if hit else None
             return part
 
         if field_def.position in ('before_printer', 'after_printer'):

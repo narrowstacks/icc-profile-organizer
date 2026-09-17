@@ -81,6 +81,7 @@ printer_names:
     - Pro_2000
     - CANpro-2_4_6_21_41_61   # Ilford: one set for PRO-2000/4000/6000/2100/4100/6100
     - Canpro2_4_6_21_41_61
+    - CAN_pro_2_4_6_21_41_61
     - CANpro-2
   Canon imagePROGRAF PRO-4000:
     - PRO-4000
@@ -958,13 +959,79 @@ filename_patterns:
       code_map_keep_rest: true
       code_map_file: vendor-legends/redriver.yaml
 
-  # Red River EMY2 documentation files carry no printer in the name:
-  # "Red River Paper_RR Arctic Polar Luster (75lb).emy2"
-  - name: red_river_emy2_files
-    priority: 74
-    description: "Red River Papers EMY2 documentation files"
-    prefix: "Red River Paper_RR "
+  # ---------------------------------------------------------------------------
+  # Canon media presets named "<printer>_<Brand> <Paper>.am1x"
+  # Examples: "PRO-1000_MOAB Entrada Nat 190-300.am1x", "PRO-2000_MOAB Anasazi Canvas Matte.am1x"
+  # The brand must be a known alias (brand_name_mappings); otherwise the
+  # pattern does not match, so it cannot hijack other printer-first names.
+  - name: printer_first_brand_files
+    priority: 70
+    description: "<printer>_<Brand> <Paper> media presets (Moab am1x)"
+    prefix: null
     prefix_case_insensitive: true
+    delimiter: " "
+    delimiter_aliases: ["_"]
+    structure:
+      - field: printer
+        position: 0
+      - field: brand
+        match_type: "brand_search"
+      - field: paper_type
+        position: "after_brand"
+    brand_value: null
+    paper_type_processing:
+      format: true
+      code_map_keep_rest: true
+      code_map:
+        Entrada Nat: Entrada Rag Natural
+        Entrada Brt: Entrada Rag Bright
+        Lasal Exh Luster: Lasal Exhibition Luster
+        Lasal Ex Luster: Lasal Exhibition Luster
+
+  # ILFORD Canon media presets: "PRO-1000_series_ILFORD_IGPSP.am1x",
+  # "PRO-200_series_ILFORD ONQ5SP8S.am1x", "CAN_pro_2_4_6_21_41_61_ILFORD ONQ5GP8S.am1x"
+  - name: ilford_am1x_files
+    priority: 73
+    description: "ILFORD am1x media presets (printer first, code after ILFORD)"
+    prefix: null
+    prefix_regex: '^(PRO-\d+_series_ILFORD|CAN_pro_2_4_6_21_41_61_ILFORD)[_ ]'
+    prefix_case_insensitive: true
+    delimiter: "_"
+    structure:
+      - field: printer
+        match_type: "substring"
+      - field: paper_type
+        position: "0+"
+    brand_value: "Ilford"
+    paper_type_processing:
+      format: true
+      code_map_file: vendor-legends/ilford.yaml
+
+  # Canson media presets: "Canson Infinity Baryta Photo II PRO-310.am1x"
+  - name: canson_am1x_files
+    priority: 79
+    description: "Canson Infinity am1x media presets"
+    prefix: "Canson Infinity "
+    prefix_case_insensitive: true
+    delimiter: " "
+    structure:
+      - field: paper_type
+        position: "before_printer"
+      - field: printer
+        match_type: "key_search"
+    brand_value: "Canson"
+    paper_type_processing:
+      format: true
+
+  # Red River media presets carry no printer in the name (the zip folder does):
+  # "Red River Paper_RR Arctic Polar Luster (75lb).emy2", "RR Palo Duro SGR.am1",
+  # "RRArcPolGloss.am1", "RRP UPSatin 4.0.am1", "RR60PolarMatte.am1"
+  - name: red_river_preset_files
+    priority: 74
+    description: "Red River EMY2/AM1 media presets without a printer in the name"
+    prefix: null
+    prefix_regex: '^(Red River Paper_)?RR(P(?=[ _]))?[ _]?'
+    prefix_case_insensitive: false
     delimiter: " "
     structure:
       - field: paper_type
