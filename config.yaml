@@ -21,6 +21,9 @@ printer_names:
   - iPFX400      # Red River Paper uses iPFX400 as generic placeholder
   Canon iPF8400:
   - Can8400
+  Canon imagePROGRAF PRO-2000:
+  - CANpro-2_4_6_21_41_61   # Ilford: one profile set for PRO-2000/4000/6000/2100/4100/6100
+  - Canpro2_4_6_21_41_61
   Epson P700:
   - P700
   - SC-P700
@@ -34,6 +37,7 @@ printer_names:
   - P7500
   - SC-P7500
   - p7500
+  - EPSCX500   # Ilford: SureColor P7500/P9500
   Epson P7570:
   - P7570
   - SC-P7570
@@ -63,11 +67,16 @@ brand_name_mappings:
   - MOAB
   - Moab
   - moab
+  Ilford:
+  - ILFORD
+  - Ilford
+  - ilford
 paper_brands:
 - Hahnemuehle
 - Canson
 - MOAB
 - Moab
+- Ilford
 printer_remappings:
   Canon iPF8400: Canon iPF6450
   Epson P700: Epson P900
@@ -197,6 +206,83 @@ filename_patterns:
     brand_value: "Red River"
     paper_type_processing:
       format: true
+
+  # Pattern 5c: ILFORD Galerie profiles (abbreviated paper codes)
+  # Format: ILFORD_<printer>_<paper code>[_<variant>]_<driver media setting>
+  # Examples: "ILFORD_EPSCX500_GPGFS_PGPP250", "ILFORD_CANpro-2_4_6_21_41_61_GTWE_Warm_JPW",
+  #           "ILFORD_CANpro-100S_GPGFG17_PPPS"
+  # The printer key may span several "_" parts; the paper code is resolved via
+  # code_map (longest matching prefix), and the driver media suffix is dropped.
+  # Code legend: https://ilford.com/printer-profiles-paper-settings/ (per-printer listings)
+  - name: ilford_profiles
+    priority: 95
+    description: "ILFORD Galerie profiles with abbreviated paper codes"
+    prefix: "ILFORD_"
+    prefix_case_insensitive: true
+    delimiter: "_"
+    structure:
+      - field: printer
+        match_type: "substring"
+      - field: paper_type
+        position: "after_printer"
+    brand_value: "Ilford"
+    paper_type_processing:
+      format: true   # Only used when a code is missing from code_map
+      code_map:
+        # Pro photo / baryta
+        GCG: Crystal Gloss
+        GPCG: Crystal Gloss
+        IGPGP: Gloss
+        IGPLP: Lustre
+        IGPSP: Satin Photo
+        GPSGP: Smooth Gloss
+        GPSPP: Smooth Pearl
+        GPMG: Metallic Gloss
+        GPRP: Raster Silk
+        GPGFG: Gold Fibre Gloss
+        GPGFS: Gold Fibre Silk
+        GPGMS: Gold Mono Silk
+        GPMSW: Mono Silk Warmtone
+        GGFP: Gold Fibre Pearl
+        GPFP: Gold Fibre Pearl
+        GGFR: Gold Fibre Rag
+        # Duo
+        GPHWM: Heavyweight Duo Matt
+        IGPMD: Premium Matt Duo
+        GPSGD: Semigloss Duo
+        GLPD: Lustre Photo Duo
+        GPLPD: Lustre Photo Duo
+        # Fine art cotton / matt
+        GPSC: Smooth Cotton Rag
+        GPTC: Textured Cotton Rag
+        GPCAT: Cotton Artist Textured
+        GSCS: Smooth Cotton Sonora
+        GPSCS: Smooth Cotton Sonora
+        GMCM: Matt Cotton Medina
+        GSCSJ: Smooth Cotton Sprite 280
+        GTCSJ: Textured Cotton Sprite 280
+        GSCPJ: Smooth Cotton Pearlescent
+        GTCPJ: Textured Cotton Pearlescent
+        GPFAS: Fine Art Smooth
+        GPFASP: Fine Art Smooth Pearl
+        GPFATS: Fine Art Textured Silk
+        # Washi
+        GPWT: Washi Torinoko
+        GTWE: Tesuki-Washi Echizen 110
+        GTWE_Neutral: Tesuki-Washi Echizen 110
+        GTWE_Warm: Tesuki-Washi Echizen 110 Warmtone
+        GTWE_Pearl: Tesuki-Washi Echizen 110 Pearl
+        GTWE110nt: Tesuki-Washi Echizen 110
+        GTWE110wt: Tesuki-Washi Echizen 110 Warmtone
+        GTWEP110: Tesuki-Washi Echizen 110 Pearl
+        # Canvas
+        GPCN: Canvas Natural
+        CPCN: Canvas Natural
+        GPFACG: Canvas Galicia
+        GPSFAC: Smooth Fine Art Canvas
+        GDCBW: Decor Canvas Bright White 380
+        GDCG: Decor Canvas Glossy 400
+        GDCMC: Decor Canvas Matt Cotton 370
 
   # Pattern 6: Fallback - substring printer detection
   # Used when specific patterns don't match

@@ -238,6 +238,28 @@ filename_patterns:
 - **paper_type_processing** (object):
   - **format** (bool): Apply CamelCase separation and title case formatting
   - **remove_brand** (string or null): Brand name to strip from paper type
+  - **code_map** (object): Abbreviated paper code → full paper name (see below)
+
+#### Paper Code Maps
+
+Some vendors encode the paper as an abbreviation rather than a name (ILFORD:
+`ILFORD_EPSCX500_GPGFS_PGPP250` → Gold Fibre Silk). `code_map` resolves those:
+
+```yaml
+paper_type_processing:
+  format: true # Fallback formatting when no code matches
+  code_map:
+    GPGFS: Gold Fibre Silk
+    GTWE_Warm: Tesuki-Washi Echizen 110 Warmtone # Keys may include the delimiter
+```
+
+The raw paper-type string (e.g. `GPGFG17_PPPS`) is matched against the keys
+by **longest prefix**, case-insensitively. A key only matches if it ends at a
+boundary — end of string, the delimiter, or a digit — so `GPGFG` matches
+`GPGFG17_PPPS` but `GPSC` does not match `GPSCS_EMP`. On a hit, the mapped name
+is used as-is (no further formatting) and everything after the code (variant
+suffixes, driver media settings) is dropped. If nothing matches, the normal
+`format` processing applies to the raw string.
 
 #### Field Definition Options
 
@@ -259,6 +281,8 @@ structure:
 
   - field: code
     position: "after_printer" # Everything after the printer key
+    # before/after_printer also handle printer aliases that contain the
+    # delimiter and so span several parts, e.g. "CANpro-2_4_6_21_41_61" with "_"
 
   # Search-based extraction
   - field: printer

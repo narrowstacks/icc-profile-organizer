@@ -25,6 +25,9 @@ printer_names:
     - "iPFX400"
   "Canon iPF8400":
     - "Can8400"
+  "Canon imagePROGRAF PRO-2000":
+    - "CANpro-2_4_6_21_41_61"   # Ilford: one profile set for PRO-2000/4000/6000/2100/4100/6100
+    - "Canpro2_4_6_21_41_61"
   "Epson P700":
     - "P700"
     - "SC-P700"
@@ -46,6 +49,7 @@ printer_names:
     - "P7500"
     - "SC-P7500"
     - "p7500"
+    - "EPSCX500"   # Ilford: SureColor P7500/P9500
   "Epson P9500":
     - "EpsSC-P9500"
   "Epson P9570":
@@ -59,6 +63,7 @@ paper_brands:
   - Canson
   - Hahnemuehle
   - Red River
+  - Ilford
 
 # Brand name mappings (alias: canonical name)
 brand_name_mappings:
@@ -80,6 +85,10 @@ brand_name_mappings:
     - "Red River"
     - "red river"
     - "RR"
+  "Ilford":
+    - "ILFORD"
+    - "Ilford"
+    - "ilford"
 
 # Printer remappings (consolidate similar printers for multi-printer profiles, since you probably won't have both printers at the same time)
 printer_remappings:

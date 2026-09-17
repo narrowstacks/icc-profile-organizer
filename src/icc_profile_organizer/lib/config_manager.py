@@ -175,6 +175,7 @@ class ConfigManager:
             paper_type_processing = PaperTypeProcessing(
                 format=ptp_raw.get('format', False),
                 remove_brand=ptp_raw.get('remove_brand'),
+                code_map={str(k): str(v) for k, v in (ptp_raw.get('code_map') or {}).items()},
             )
 
             return FilenamePattern(

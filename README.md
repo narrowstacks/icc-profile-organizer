@@ -19,7 +19,7 @@ Instead of having an unorganized list ordered by what the paper brand's file nam
 - **Detects** and removes duplicate PDFs via SHA-256 hashing
 - **Handles** multi-printer profiles interactively or via preferences
 
-Supports profiles from MOAB, Canson, Hahnemuehle, Red River, EPSON, and more. See [Configuration Guide](configuration.md) for pattern matching details and customization.
+Supports profiles from MOAB, Canson, Hahnemuehle, Red River, ILFORD, EPSON, and more. See [Configuration Guide](configuration.md) for pattern matching details and customization.
 
 ## Installation
 

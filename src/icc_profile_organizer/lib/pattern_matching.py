@@ -35,6 +35,9 @@ class PaperTypeProcessing:
 
     format: bool = False  # Apply CamelCase separation
     remove_brand: Optional[str] = None  # Brand name to remove from paper type
+    # Abbreviation -> full paper name (e.g. "GPGFS" -> "Gold Fibre Silk").
+    # Matched by longest prefix of the raw paper-type string; see lookup_paper_code().
+    code_map: Dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -90,6 +93,27 @@ def format_paper_type(paper_type: str, remove_brand: Optional[str] = None) -> st
         )
 
     return cleaned
+
+
+def lookup_paper_code(raw: str, code_map: Dict[str, str], delimiter: str) -> Optional[str]:
+    """Resolve an abbreviated paper code at the start of ``raw`` via ``code_map``.
+
+    The longest key that prefixes ``raw`` (case-insensitive) wins, provided the
+    key ends at a boundary: end of string, the delimiter, or a digit (so
+    "GPGFG17_PPPS" resolves via "GPGFG" but "GPSCS_EMP" does not via "GPSC").
+    Keys may themselves contain the delimiter ("GTWE_Warm").
+
+    Returns the mapped name, or None if no key matches.
+    """
+    raw_lower = raw.lower()
+    for key in sorted(code_map, key=len, reverse=True):
+        key_lower = key.lower()
+        if not raw_lower.startswith(key_lower):
+            continue
+        rest = raw[len(key):]
+        if rest == '' or rest.startswith(delimiter) or rest[0].isdigit():
+            return code_map[key]
+    return None
 
 
 class PatternMatcher:
@@ -199,6 +223,13 @@ class PatternMatcher:
         # Get paper type
         paper_type = extracted.get('paper_type', 'Unknown')
 
+        # Resolve abbreviated paper codes (already human-readable; skip formatting)
+        if pattern.paper_type_processing.code_map:
+            mapped = lookup_paper_code(paper_type, pattern.paper_type_processing.code_map,
+                                       pattern.delimiter)
+            if mapped is not None:
+                return extracted['printer'], brand, mapped
+
         # Format paper type if needed
         if pattern.paper_type_processing.format:
             remove_brand = pattern.paper_type_processing.remove_brand
@@ -255,20 +286,17 @@ class PatternMatcher:
 
         elif field_def.position == "before_printer":
             # Everything before the printer key
-            for i, part in enumerate(parts):
-                for printer_key in self.printer_names.keys():
-                    if part.lower() == printer_key.lower() or printer_key.lower() in part.lower():
-                        return pattern.delimiter.join(parts[:i])
-            return None
+            split = self._split_at_printer(parts, pattern.delimiter)
+            if split is None:
+                return None
+            return pattern.delimiter.join(split[0])
 
         elif field_def.position == "after_printer":
             # Everything after the printer key
-            for i, part in enumerate(parts):
-                for printer_key in self.printer_names.keys():
-                    if part.lower() == printer_key.lower() or printer_key.lower() in part.lower():
-                        if i + 1 < len(parts):
-                            return pattern.delimiter.join(parts[i + 1:])
-            return None
+            split = self._split_at_printer(parts, pattern.delimiter)
+            if split is None or not split[1]:
+                return None
+            return pattern.delimiter.join(split[1])
 
         elif isinstance(field_def.position, str) and field_def.position.endswith('+'):
             # Range: "1+" or "2+"
@@ -293,6 +321,38 @@ class PatternMatcher:
             return None
 
         return None
+
+    def _split_at_printer(self, parts: List[str],
+                          delimiter: str) -> Optional[Tuple[List[str], List[str]]]:
+        """Split ``parts`` into (before, after) around the printer key.
+
+        First looks for a single part containing a printer key (original
+        behaviour). If none matches, tries printer keys that themselves contain
+        the delimiter (e.g. "CANpro-2_4_6_21_41_61" with delimiter "_"), which
+        span several parts; the longest such key found wins.
+        """
+        for i, part in enumerate(parts):
+            for printer_key in self.printer_names.keys():
+                if part.lower() == printer_key.lower() or printer_key.lower() in part.lower():
+                    return parts[:i], parts[i + 1:]
+
+        best: Optional[Tuple[int, int]] = None  # (start_part, end_part) inclusive
+        best_len = 0
+        for printer_key in self.printer_names.keys():
+            if delimiter not in printer_key or len(printer_key) <= best_len:
+                continue
+            key_parts = printer_key.lower().split(delimiter)
+            n = len(key_parts)
+            for i in range(len(parts) - n + 1):
+                window = [p.lower() for p in parts[i:i + n]]
+                # Outer parts may carry extra text (e.g. "ILFORD_CANpro-2" -> "CANpro-2")
+                if (window[0].endswith(key_parts[0]) and window[-1].startswith(key_parts[-1])
+                        and window[1:-1] == key_parts[1:-1]):
+                    best, best_len = (i, i + n - 1), len(printer_key)
+                    break
+        if best is None:
+            return None
+        return parts[:best[0]], parts[best[1] + 1:]
 
     def _normalize_brand(self, brand: str) -> str:
         """Normalize brand name using mappings."""
