@@ -95,6 +95,38 @@ This is the task this repo exists for. Work through every step; the job is
 done when the dry run shows **zero `Could not parse` / `Unknown` entries**
 and the execute run has been verified.
 
+0. **Ask before you act.** Nothing is written until step 5, but the answers
+   below shape steps 1–4, so get them first, in one message, and skip any
+   the request or the folder already answers (confirm rather than
+   re-ask). Do not start the dry run or edit config until you have them.
+   - **Which printer(s) do you own — exact model?** This fixes the canonical
+     folder name and every remapping. Vendors ship one profile set per
+     family (`P7500/P9500`, `PRO-2000/4000/6000`, `x400` = iPF6400/6450/
+     8400/9400, Ilford `EPP700` = P700/P900); the set is filed under the
+     model the user owns, never the vendor's family token. If the download
+     names a printer the user did not mention (a P9500 zip for a P7570
+     owner), ask whether to collapse it (`printer_remappings`) or keep it
+     as its own folder.
+   - **Which vendor and paper line is this?** ("Canson Infinity", "Ilford
+     Galerie", "Red River") — it decides which legend to consult and which
+     brand alias to use, and it tells you whether the vendor is already in
+     `docs/vendor-filename-survey.md`.
+   - **Where are the files, and is the vendor's folder structure intact?**
+     Media presets with no printer in their name (`RR Polar Matte.am1`)
+     resolve from the folder name; a flattened dump loses that. Ask the
+     user to keep (or restore) the zip's folder before scanning.
+   - **What should happen at the end?** Merge into `profiles/` and
+     regenerate `organized-profiles/`? Install into ColorSync, and if so
+     user (`~/Library`) or system (`/Library`, needs sudo)? Install only
+     the new printer/brand folders, or the whole library?
+   - **Anything already in the source that must not be touched or
+     renamed?** Existing installed profiles keep working under their old
+     names; renaming a set the user has already referenced in Lightroom
+     presets is a decision for them.
+
+   Do not ask about things the tool decides itself (media codes are
+   dropped, weights are bare numbers, presets are filed next to profiles).
+
 1. **Dry-run first, always.**
    `uv run icc-organizer <dir> --detailed --profiles-only` and read every
    line. Anything landing in `Unknown/`, or a paper type that is still a
@@ -125,7 +157,7 @@ and the execute run has been verified.
 6. **Verify the output**, not just the log: every new file opens with
    `ImageCms`, its `profile_description` equals its filename stem, and no
    `[2]` collision suffixes appeared.
-7. **Install for the user if asked.** `--system-profiles` prompts on stdin
+7. **Install for the user if asked (step 0 answer).** `--system-profiles` prompts on stdin
    (`1` system / `2` user); from an agent, `cp -p` the new
    `<Printer>/<Brand>/` folders into `~/Library/ColorSync/Profiles/`
    preserving the layout (that is what the installer does on macOS). Copy

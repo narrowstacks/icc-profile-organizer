@@ -84,16 +84,22 @@ folder and a sentence.
 Open the agent in a clone of this repo and say something like:
 
 ```
-Organize the profiles in ~/Downloads/canson_profiles and install them
-for my Epson P7570. Follow the playbook in CLAUDE.md.
+Organize the Canson Infinity profiles in ~/Downloads/canson_profiles for
+my Epson P7570 (the zip says P7500/P9500 — same set), merge them into my
+library and install them into ~/Library/ColorSync. Follow the playbook
+in CLAUDE.md.
 ```
 
-What a good run looks like: the agent dry-runs, notices any files it can't
-name, goes and finds the vendor's legend (embedded descriptions, the bundled
-PDF, the vendor's download page), teaches `config.yaml` the new scheme,
-proves the existing library is unaffected, then executes and verifies the
-result. It should ask you one thing at most: which printer you own when a
-vendor ships one profile set for a whole family.
+What a good run looks like: before touching anything the agent asks, in one
+message, for what it cannot infer — which printer model(s) you own, which
+vendor and paper line the download is, whether the vendor's folder structure
+is intact, and what you want at the end (merge into your library, install
+into ColorSync as user or system, only the new folders or everything). Then
+it dry-runs, notices any files it can't name, goes and finds the vendor's
+legend (embedded descriptions, the bundled PDF, the vendor's download page),
+teaches `config.yaml` the new scheme, proves the existing library is
+unaffected, then executes and verifies the result. Answer the questions up
+front in your prompt and it should not need to ask at all.
 
 If it produces `Unknown - Unknown - …` files, it skipped the legend step —
 point it back at CLAUDE.md.
