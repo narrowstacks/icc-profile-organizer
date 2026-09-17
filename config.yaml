@@ -1,158 +1,639 @@
+# Printer name mappings (canonical name: [aliases]).
+#
+# Aliases are matched case-insensitively as bounded substrings anywhere in a
+# filename token, so one spelling covers "P900", "EpP900", "OEMSCP900" and
+# "P900_700". The longest alias wins and a numeric edge must not touch another
+# digit ("P900" never matches inside "P9000"). Aliases containing the
+# pattern delimiter span several tokens ("CANpro-2_4_6_21_41_61").
+#
+# Vendors ship one profile set per printer family; family tokens map to the
+# smallest model and printer_remappings collapse them onto the printer you own.
+# Sources for the aliases: the download pages of Hahnemuehle, Canson Infinity,
+# Moab, Red River, Ilford, Awagami, Breathing Color, Innova, PermaJet and
+# Fotospeed plus the Epson/Canon driver profile sets (Sept 2026 survey).
 printer_names:
+  # ---------------------------------------------------------------- Canon Pixma
+  Canon Pixma PRO-1:
+    - PRO-1
+    - CANPRO-1
+    - PixmaPro1
+    - PixmaPro-1
+    - Pro1
+  Canon Pixma PRO-10:
+    - PRO-10
+    - PRO-10S
+    - CANpro-10S
+    - PixmaPro10
+    - Pro10
+    - Pro10s
   Canon Pixma PRO-100:
-  - PRO-100
-  - Pro-100
-  - pro-100
-  - pixmapro100
-  - pro100
-  - CanPro-100
-  - CanPro100
-  - canpro-100
-  - canpro100
-  - CANPRO-100
-  - CANPRO100
-  Canon iPF6450:
-  - Can6450
-  - iPF6450
-  - ipf6450
-  - iPf6450
-  - ipf6400
-  - IPF6400      # Red River Paper uses IPF6400
-  - iPFX400      # Red River Paper uses iPFX400 as generic placeholder
-  Canon iPF8400:
-  - Can8400
+    - PRO-100
+    - PRO-100S
+    - pixmapro100
+    - pro100
+    - Pro_100
+    - CanPro-100
+    - CanPro100
+    - CANpro-100S
+  Canon Pixma PRO-200:
+    - PRO-200
+    - PRO-200S
+    - CANpix-200
+    - Pro200
+    - PixmaPro200
+  Canon Pixma Pro9000 Mark II:
+    - Pro9000
+    - PRO-9000
+    - Pro9000mkII
+    - 9000MK2
+  Canon Pixma Pro9500 Mark II:
+    - Pro9500
+    - PRO-9500
+    - Pro9500mkII
+    - 9500MK2
+  Canon Pixma iP8720:
+    - iP8720
+    - iP8750
+    - iP8760
+    - CANiP8700
+    - CAN87xx
+  # -------------------------------------------------------- Canon imagePROGRAF
+  Canon imagePROGRAF PRO-300:
+    - PRO-300
+    - CANpro-300
+    - Pro300
+  Canon imagePROGRAF PRO-310:
+    - PRO-310
+    - CANpro-310
+    - Pro310
+  Canon imagePROGRAF PRO-1000:
+    - PRO-1000
+    - CANpro-1000
+    - Pro1000
+    - Pro_1000     # Fotospeed
+  Canon imagePROGRAF PRO-1100:
+    - PRO-1100
+    - Canpro1100
+    - Pro1100
   Canon imagePROGRAF PRO-2000:
-  - CANpro-2_4_6_21_41_61   # Ilford: one profile set for PRO-2000/4000/6000/2100/4100/6100
-  - Canpro2_4_6_21_41_61
+    - PRO-2000
+    - Pro2000
+    - Pro_2000
+    - CANpro-2_4_6_21_41_61   # Ilford: one set for PRO-2000/4000/6000/2100/4100/6100
+    - Canpro2_4_6_21_41_61
+    - CANpro-2
+  Canon imagePROGRAF PRO-4000:
+    - PRO-4000
+    - Pro4000
+  Canon imagePROGRAF PRO-6000:
+    - PRO-6000
+    - Pro6000
+  Canon imagePROGRAF PRO-4000S:
+    - PRO-4000S
+    - Pro4000S
+    - PRO-6000S
+    - Pro6000S
+    - PRO-4100S
+    - PRO-6100S
+  Canon imagePROGRAF PRO-2100:
+    - PRO-2100
+    - Pro2100
+  Canon imagePROGRAF PRO-4100:
+    - PRO-4100
+    - Pro4100
+  Canon imagePROGRAF PRO-6100:
+    - PRO-6100
+    - Pro6100
+  Canon imagePROGRAF PRO-2600:
+    - PRO-2600
+    - Pro2600
+    - Pro_2600
+    - Canpro26_46_6600      # Ilford: PRO-2600/4600/6600
+    - Canpro26
+  Canon imagePROGRAF PRO-4600:
+    - PRO-4600
+    - Pro4600
+  Canon imagePROGRAF PRO-6600:
+    - PRO-6600
+    - Pro6600
+  Canon imagePROGRAF GP-2000:
+    - GP-2000
+    - GP2000
+    - GP-300
+  Canon imagePROGRAF GP-4000:
+    - GP-4000
+    - GP4000
+  Canon imagePROGRAF GP-2600S:
+    - GP-2600S
+    - GP-4600S
+    - GP-6600S
+    - GP2600
+    - GP4600
+    - GP6600
+  Canon iPF5000:
+    - iPF5000
+    - IPFx000      # Breathing Color: iPF5000/8000/9000
+    - "5000"
+  Canon iPF8000:
+    - iPF8000
+  Canon iPF9000:
+    - iPF9000
+  Canon iPF5100:
+    - iPF5100
+    - CANipf51_61_81        # Ilford: iPF5100/6100/8100
+  Canon iPF6100:
+    - iPF6100
+    - iPFx100      # Breathing Color / Innova: iPF5100/6100/8100/9100
+    - x100
+    - "6100"
+    - "5100"
+  Canon iPF8100:
+    - iPF8100
+  Canon iPF9100:
+    - iPF9100
+  Canon iPF6300:
+    - iPF6300
+    - iPFx300
+    - x300
+    - iPF63X0
+    - CANiPF6300-8300
+    - "6300"
+  Canon iPF6350:
+    - iPF6350
+    - "6350"
+  Canon iPF8300:
+    - iPF8300
+    - "8300"
+  Canon iPF6450:
+    - Can6450
+    - iPF6450
+    - iPF6400
+    - iPF6400S
+    - iPFX400      # Red River / Awagami / Breathing Color: iPF6400/6450/8400/9400
+    - x400
+    - CANipf64_84_9400
+    - CANipf64
+    - "6400"
+  Canon iPF8400:
+    - Can8400
+    - iPF8400
+    - iPF8400S
+    - "8400"
+  Canon iPF9400:
+    - iPF9400
+    - "9400"
+  # ---------------------------------------------------------- Epson SureColor
+  Epson P400:
+    - P400
+    - SC-P400
+    - SCP400
+    - EPP400
+    - EPSC400
+  Epson P600:
+    - P600
+    - SC-P600
+    - SCP600
+    - EpsSC-P600
+    - EPP600
+    - EPSC600
   Epson P700:
-  - P700
-  - SC-P700
-  - EpsSC-P700
+    - P700
+    - SC-P700
+    - SCP700
+    - EpsSC-P700
+    - EPP700       # Ilford: one set for P700/P900
+    - P700_900     # Innova
+  Epson P800:
+    - P800
+    - SC-P800
+    - SCP800
+    - EpsSC-P800
+    - EPP800
+    - EPSC800
   Epson P900:
-  - P900
-  - SC-P900
-  - EpsSC-P900
-  - p900
+    - P900
+    - SC-P900
+    - SCP900
+    - EpsSC-P900
+    - P900_700     # Epson driver profiles: one set for P900/P700
+  Epson P5000:
+    - P5000
+    - SC-P5000
+    - SCP5000
+    - EPSC5_7_9000std    # Ilford: P5000/P7000/P9000
+    - EPSC5_7_9000
+  Epson P5300:
+    - P5300
+    - SC-P5300
+    - SCP5300
+    - SCP-5300
+    - EPSC5300
+    - P5350
+    - P5360
+    - P5370
+    - P5380
+  Epson P6000:
+    - P6000
+    - SC-P6000
+    - SCP6000
+    - EPSC6000
+  Epson P8000:
+    - P8000
+    - SC-P8000
+    - SCP8000
+    - EPSC8000
+  Epson P6500:
+    - P6500
+    - SC-P6500
+    - SCP6500
+    - EPSC65_8500
+  Epson P8500:
+    - P8500
+    - P8500D
+    - P8500DM
+    - SC-P8500
+  Epson P7000:
+    - P7000
+    - SC-P7000
+    - SCP7000
+    - P7000std
+    - EPSC7000
+    - SC-P9000_7000
+  Epson P9000:
+    - P9000
+    - SC-P9000
+    - SCP9000
+    - P9000std
+  Epson P7300:
+    - P7300
+    - SC-P7300
+    - P7360
+    - P7370
+  Epson P9300:
+    - P9300
+    - SC-P9300
+    - P9360
+    - P9370
   Epson P7500:
-  - P7500
-  - SC-P7500
-  - p7500
-  - EPSCX500   # Ilford: SureColor P7500/P9500
-  Epson P7570:
-  - P7570
-  - SC-P7570
-  - p7570
-  - EpsSC-P7570
-  - Epson SureColor P7570
-  - Epson SureColor SC-P7570
-  - "7570"      # Red River Paper uses just "7570" or "7570-9570"
+    - P7500
+    - SC-P7500
+    - SCP7500
+    - SC7500
+    - EpsSC-P7500
+    - EPSCX500     # Ilford: SureColor P7500/P9500
+    - P7560
   Epson P9500:
-  - EpsSC-P9500
+    - P9500
+    - SC-P9500
+    - SCP9500
+    - SC9500
+    - EpsSC-P9500
+    - P9500_7500   # Epson driver profiles: one set for P9500/P7500
+    - P9560
+  Epson P7570:
+    - P7570
+    - SC-P7570
+    - EpsSC-P7570
+    - Epson SureColor P7570
+    - Epson SureColor SC-P7570
+    - "7570"       # Red River Paper uses just "7570" or "7570-9570"
   Epson P9570:
-  - P9570
-  - SC-P9570
-  - "9570"      # Red River Paper uses just "9570"
+    - P9570
+    - SC-P9570
+    - "9570"       # Red River Paper uses just "9570"
+  Epson P10000:
+    - P10000
+    - SC-P10000
+    - SCP10000
+    - EPSC10000
+    - P10_20000    # Innova
+  Epson P20000:
+    - P20000
+    - SC-P20000
+    - SCP20000
+    - P20K
+  Epson P20500:
+    - P20500
+    - SC-P20500
+    - EPSC20500
+    - P20570
+    - P20580
+  # ------------------------------------------------------- Epson Stylus Pro
+  Epson Pro 3800:
+    - "3800"
+    - Pro3800
+  Epson Pro 3880:
+    - "3880"
+    - Pro3880
+    - EPSpro3880
+  Epson Pro 4800:
+    - "4800"
+  Epson Pro 4880:
+    - "4880"
+  Epson Pro 4900:
+    - "4900"
+    - Pro4900
+  Epson Pro 7600:
+    - "7600"
+    - x600         # Breathing Color: 7600/9600/10600
+  Epson Pro 9600:
+    - "9600"
+  Epson Pro 10600:
+    - "10600"
+  Epson Pro 7800:
+    - "7800"
+    - x800         # Breathing Color: 3800/4800/7800/9800
+  Epson Pro 9800:
+    - "9800"
+  Epson Pro 7880:
+    - "7880"
+    - x880         # Breathing Color: 4880/7880/9880/11880
+  Epson Pro 9880:
+    - "9880"
+  Epson Pro 11880:
+    - "11880"
+  Epson Pro 7890:
+    - "7890"
+    - x890         # Breathing Color: 7890/9890
+  Epson Pro 9890:
+    - "9890"
+  Epson Pro 7900:
+    - "7900"
+    - x900         # Breathing Color: 4900/7900/9900
+  Epson Pro 9900:
+    - "9900"
+  # ----------------------------------------------------- Epson Stylus Photo
+  Epson R800:
+    - R800
+  Epson R1800:
+    - R1800
+  Epson R1900:
+    - R1900
+  Epson R2000:
+    - R2000
+  Epson R2400:
+    - R2400
+  Epson R2880:
+    - R2880
+  Epson R3000:
+    - R3000
+    - EPSON3000    # PermaJet
+  Epson 1400:
+    - R1400
+    - "1430"
+  Epson XP-15000:
+    - XP-15000
+    - XP15000
+  Epson XP-960:
+    - XP-960
+    - XP960
+    - XP-970
+    - XP970
+    - XP-980
+  Epson ET-8550:
+    - ET-8550
+    - ET8550
+    - ET-8500
+    - ET8500
+  Epson ET-7750:
+    - ET-7750
+    - ET7750
+  Epson ET-18100:
+    - ET-18100
+    - ET18100
+  # ----------------------------------------------------------------- HP
+  HP Z2100:
+    - Z2100
+  HP Z3100:
+    - Z3100
+  HP Z3200:
+    - Z3200
+  HP Z6:
+    - Z6
+  HP Z9:
+    - Z9
+    - HPz9
+    - Z9+
+    - Z9Pro
+    - Z9+dr
+
+# Brand name mappings (canonical name: [aliases]). Aliases are also used to
+# recognise a brand inside "EPSON SC-P900 <Brand> <Paper>.emy2" style names.
 brand_name_mappings:
   Canson:
-  - cifa
-  - CIFA
-  - canson
-  - Canson
+    - cifa
+    - Canson
+    - Canson Infinity
   Hahnemuehle:
-  - HFA
-  - hfa
-  - Hahnemuehle
-  - hahnemuehle
+    - HFA
+    - Hahnemuehle
+    - Hahnemühle
   MOAB:
-  - MOAB
-  - Moab
-  - moab
+    - MOAB
+    - Moab
   Ilford:
-  - ILFORD
-  - Ilford
-  - ilford
+    - ILFORD
+    - Ilford
+  Red River:
+    - Red River
+    - Red River Paper
+    - RR
+  Awagami:
+    - Awagami
+  Breathing Color:
+    - Breathing Color
+    - BC
+  Innova:
+    - Innova
+    - Olmec
+  PermaJet:
+    - PermaJet
+    - APJ
+  Fotospeed:
+    - Fotospeed
+  Epson:
+    - Epson
+  Canon:
+    - Canon
+
 paper_brands:
-- Hahnemuehle
-- Canson
-- MOAB
-- Moab
-- Ilford
+  - Hahnemuehle
+  - Canson
+  - MOAB
+  - Ilford
+  - Red River
+  - Awagami
+  - Breathing Color
+  - Innova
+  - PermaJet
+  - Fotospeed
+  - Epson
+  - Canon
+
+# Collapse printers you do not own onto the one you do (one folder per
+# physical printer). Vendors ship one profile set per family, so the members
+# below share identical profiles with the target.
 printer_remappings:
   Canon iPF8400: Canon iPF6450
+  Canon iPF9400: Canon iPF6450
+  Canon imagePROGRAF PRO-4000: Canon imagePROGRAF PRO-2000
+  Canon imagePROGRAF PRO-6000: Canon imagePROGRAF PRO-2000
   Epson P700: Epson P900
   Epson P7500: Epson P7570
   Epson P9500: Epson P7570
+  Epson P9570: Epson P7570
   Epson SureColor P7570: Epson P7570
 
-# Filename patterns for parsing ICC profiles and EMY2 files
-# Patterns are evaluated in priority order (higher priority first)
-# Each pattern defines how to extract printer, paper brand, and paper type from filenames
+# Filename patterns for parsing ICC/ICM/EMY2 files.
+# Patterns are evaluated in priority order (higher priority first). Each
+# pattern says how to pull printer, paper brand and paper type out of a
+# filename; see configuration.md for the field reference.
+#
+# Per-pattern comments record where the vendor's naming/legend was read so it
+# can be re-derived: the survey of every vendor download page is summarised
+# in docs/vendor-filename-survey.md.
 filename_patterns:
-  # Pattern 1: MOAB profiles (brand prefix with positional paper type)
-  # Examples: "MOAB Anasazi Canvas PRO-100 MPP", "MOAB Lasal Gloss Matte P7570-P9570 ECM"
+  # ---------------------------------------------------------------------------
+  # MOAB  "MOAB <Paper> <printer> <media code>"
+  # Examples: "MOAB Anasazi Canvas PRO-100 MPP", "MOAB Lasal Gloss Matte P7570-P9570 ECM",
+  #           "MOAB Lasal Photo Matte P900 USFA -10%", "MOAB Somerset Museum Rag Epson 3880 VFA"
+  # Everything after the printer token is a driver media setting and is dropped.
+  # Source: moabpaper.com/icc-profiles-downloads (one zip per printer).
   - name: moab_profiles
     priority: 100
     description: "MOAB brand profiles with positional paper type"
     prefix: "MOAB "
     prefix_case_insensitive: true
     delimiter: " "
-    # Structure: paper type comes before printer, code after
     structure:
       - field: paper_type
         position: "before_printer"
       - field: printer
-        match_type: "key_search"  # Search through printer keys
+        match_type: "key_search"
       - field: code
         position: "after_printer"
     brand_value: "MOAB"
     paper_type_processing:
-      format: true  # Apply CamelCase separation
-
-  # Pattern 2: EPSON SC- EMY2 files (manufacturer + model prefix)
-  # Examples: "EPSON SC-P900 Moab Entrada Rag Bright 190"
-  - name: epson_sc_files
-    priority: 90
-    description: "EPSON SC-P### EMY2 files with fixed position parsing"
-    prefix: "EPSON SC-"
-    prefix_case_insensitive: false
-    delimiter: " "
-    structure:
-      - field: printer
-        position: 0  # "P900" at index 0 (after prefix removed)
-      - field: brand
-        position: 1  # e.g., "Moab" at index 1
-      - field: paper_type
-        position: "2+"  # Rest is paper type
-    brand_value: null  # Use position 1
-    paper_type_processing:
       format: true
+      # "MOAB Somerset Velvet Epson 3880 VFA" -> the make precedes the model
+      strip_regex: ['\s(Epson|Canon|Ep|Can)$']
+      code_map_keep_rest: true
+      code_map:
+        Somerset Enh Velvet: Somerset Enhanced Velvet
+        Entrada Nat: Entrada Rag Natural
+        Entrada Brt: Entrada Rag Bright
 
-  # Pattern 3: Canson/CIFA profiles (brand code with underscore separation)
-  # Examples: "cifa_pixmapro100_baryta2_310", "cifa_Can6450_Photo_Rag_308"
-  - name: cifa_profiles
-    priority: 80
-    description: "Canson/CIFA profiles with underscore-delimited structure"
-    prefix: "cifa_"
+  # ---------------------------------------------------------------------------
+  # ILFORD Galerie  "ILFORD_<printer>_<paper code>[_<variant>]_<driver media>"
+  # Examples: "ILFORD_EPSCX500_GPGFS_PGPP250", "ILFORD_CANpro-2_4_6_21_41_61_GTWE_Warm_JPW",
+  #           "ILFORD_CANpro-100S_GPGFG17_PPPS", "ILFORD_EPP700_GTW-EW_USFAP"
+  # The printer key may span several "_" parts; the paper code is resolved via
+  # code_map (longest matching prefix) and the driver media suffix is dropped.
+  # Legend: ilford.com/printer-profiles-paper-settings/ (per-printer tables,
+  # served by ilford.com/ilford-profiles/multi-load-selected-profiles-via-ajax.php).
+  - name: ilford_profiles
+    priority: 95
+    description: "ILFORD Galerie / Omnijet Studio profiles with abbreviated paper codes"
+    prefix: "ILFORD_"
     prefix_case_insensitive: true
     delimiter: "_"
     structure:
       - field: printer
-        position: 0
+        match_type: "substring"
       - field: paper_type
-        position: "1+"
-    brand_value: "Canson"
+        position: "after_printer"
+    brand_value: "Ilford"
+    paper_type_processing:
+      format: true   # Only used when a code is missing from code_map
+      strip_regex: ['^series_ILFORD_', '^series_']
+      code_map_file: vendor-legends/ilford.yaml
+
+  # ILFORD legacy sets put the paper code first: "n_GPFAS_CANipf6300_FAPn",
+  # "IGPTC19_EPSC800_USFAPn", "GPSPP12_CANipf6350_PSGP280n". No vendor prefix,
+  # so the pattern only fires when the leading token is a known Ilford code.
+  - name: ilford_legacy_profiles
+    priority: 72
+    description: "ILFORD legacy profiles: paper code before printer"
+    prefix: null
+    prefix_case_insensitive: true
+    delimiter: "_"
+    structure:
+      - field: paper_type
+        position: "before_printer"
+      - field: printer
+        match_type: "key_search"
+    brand_value: "Ilford"
+    paper_type_processing:
+      format: false
+      strip_regex: ['^n_']
+      require_code_map: true
+      code_map_file: vendor-legends/ilford.yaml
+
+  # ---------------------------------------------------------------------------
+  # EPSON driver profiles and EMY2 media files  "EPSON SC-<model>[ <Brand>] <Paper>"
+  # Examples: "EPSON SC-P900 Moab Entrada Rag Bright 190-300.emy2"
+  #           "EPSON SC-P5300_MOAB Entrada Rag Natural 190.emy2"
+  #           "EPSON_SC-P900_Awagami_Bamboo_Paper_110gsm.emy2"
+  #           "EPSON SC-P900 Canson Infinity Platine Fibre Rag.emy2"
+  #           "Epson_SC-P900_700_LegacyPlatine.icc"      (Epson driver, /Library/Printers/EPSON)
+  #           "EPSON_SC-P9500_7500_PremiumLusterPhotoPaper260.icc"
+  #           "SC-P9000_P7000_Series_V HotPressBright_MK_v1.icc" (EPSON/InkjetPrinter2)
+  # "_" is accepted as a delimiter. After the printer token a known brand alias
+  # (brand_name_mappings) is looked for; without one the file is an Epson-paper
+  # profile. A second model number ("700" in "P900_700"), "Series V", the ink
+  # marker and a version tag are dropped.
+  - name: epson_sc_files
+    priority: 90
+    description: "EPSON SC-P### EMY2 files and Epson driver profiles"
+    prefix: null
+    prefix_regex: '^(EPSON )?SC-'
+    prefix_case_insensitive: true
+    delimiter: " "
+    delimiter_aliases: ["_"]
+    structure:
+      - field: printer
+        position: 0
+      - field: brand
+        match_type: "brand_search"
+      - field: paper_type
+        position: "after_brand"
+    brand_value: null
+    brand_fallback: "Epson"
     paper_type_processing:
       format: true
+      strip_regex: ['^P?\d{3,5}\s', '^Series\sV\s', '\sv\d+$', '\s(MK|PK)$', '\sSeries$']
 
-  # Pattern 4: Hahnemuehle (HFA) base profiles (brand code with variants)
-  # Variants: "HFA_", "HFAPhoto_", "HFAMetallic_"
-  # Examples: "HFA_Can6450_MK_PhotoRag308", "HFAPhoto_EpsSC-P900_PK_GlossyFine"
+  # ---------------------------------------------------------------------------
+  # Canon driver profiles  "CN_<model>_<version>_<Paper>[-P]"
+  # Example: "CN_PRO-2000_520_FineArtPhoto.icc" (/Library/Printers/Canon/…/PRO2000.canonicc)
+  - name: canon_driver_profiles
+    priority: 90
+    description: "Canon driver-bundled profiles"
+    prefix: "CN_"
+    prefix_case_insensitive: false
+    delimiter: "_"
+    structure:
+      - field: printer
+        match_type: "key_search"
+      - field: paper_type
+        position: "after_printer"
+    brand_value: "Canon"
+    paper_type_processing:
+      format: true
+      strip_regex: ['^\d+_', '-P$']
+
+  # ---------------------------------------------------------------------------
+  # Hahnemuehle  "HFA[Photo|Metallic]_<printer>_<MK|PK>_<Paper>[_BarytaSetting]"
+  # Examples: "HFA_Can6450_MK_PhotoRag308", "HFAPhoto_EpsSC-P900_PK_GlossyFine",
+  #           "HFA_CanPro1000_PK_PRBaryta_BarytaSetting", "HFA_CanPro2000_MK_Albrecht_Duerer"
+  # PR = Photo Rag, FA = Fine Art; the code_map expands those and the artist
+  # papers, keeping any weight that follows ("PRBaryta315" -> "Photo Rag Baryta 315").
+  # Source: hahnemuehle.com/en/digital-papers/icc-profile/download-center.html
   - name: hfa_profiles
     priority: 85
     description: "Hahnemuehle HFA profiles with variant prefixes"
     prefix: "HFA"
     prefix_case_insensitive: false
-    # Multiple variants with different prefix lengths
     variants:
       - prefix: "HFAMetallic_"
         prefix_length: 12
@@ -172,9 +653,293 @@ filename_patterns:
     paper_type_processing:
       format: true
       remove_brand: "Hahnemuehle"  # Strip brand name from paper type
+      strip_regex: ['_BarytaSetting$', '-ab-charge-\d+$']
+      code_map_keep_rest: true
+      code_map:
+        PRBaryta: Photo Rag Baryta
+        PRBook: Photo Rag Book & Album
+        PRBookAlbum: Photo Rag Book & Album
+        PRBook_Album: Photo Rag Book & Album
+        PRBookandAlbum: Photo Rag Book & Album
+        PRBrightWhite: Photo Rag Bright White
+        PRDuo: Photo Rag Duo
+        PRMetallic: Photo Rag Metallic
+        PRPearl: Photo Rag Pearl
+        PRSatin: Photo Rag Satin
+        PRUltraSmooth: Photo Rag Ultra Smooth
+        PR-UltraSmooth: Photo Rag Ultra Smooth
+        PR-Ultrasmooth: Photo Rag Ultra Smooth
+        PhotoRagMattBaryta: Photo Rag Matt Baryta
+        FABaryta: Fine Art Baryta
+        FABarytaSatin: Fine Art Baryta Satin
+        FABSatin: Fine Art Baryta Satin
+        FAPearl: Fine Art Pearl
+        BarytaFB: Baryta FB
+        ADurer: Albrecht Duerer
+        ADuerer: Albrecht Duerer
+        Albrecht_Duerer: Albrecht Duerer
+        WTurner: William Turner
+        GermEtching: German Etching
+        MusEtching: Museum Etching
+        Hemp-Hanf: Hemp
+        Agave-Sisal: Agave
+        SilkBarytaX: Photo Silk Baryta X
+        PhotoSilkBarytaX: Photo Silk Baryta X
+        PhotoGlossBarytaX: Photo Gloss Baryta X
+        HahnemuehlePhotoMatteFibre: Photo Matt Fibre
+        HahnemuehlePhotoMatteFibreDuo: Photo Matt Fibre Duo
 
-  # Pattern 5: Red River Papers (ICC Profiles with Printer Info)
-  # Examples: "RR Arctic Polar Luster Ep 7570-9750", "RR Palo Duro Matte Canvas P9570 P7570"
+  # ---------------------------------------------------------------------------
+  # Canson Infinity  "cifa_<printer>_<paper code><weight>[_<m|p>_bk]"
+  # Examples: "cifa_p900_platine310_p_bk", "cifa_Can6450_edition2_310",
+  #           "cifa_iPf_GP4000_ragphoto310", "CIFA_R2880_pmk310_M_BK"
+  # "_m_bk"/"_p_bk" is the ink (matte/photo black) and is dropped. Codes are
+  # expanded from the labels on canson-infinity.com/en/icc-profiles (the page
+  # embeds a JSON legend per printer); the weight that follows is kept.
+  - name: cifa_profiles
+    priority: 80
+    description: "Canson/CIFA profiles with underscore-delimited structure"
+    prefix: "cifa_"
+    prefix_case_insensitive: true
+    delimiter: "_"
+    structure:
+      - field: printer
+        match_type: "key_search"
+      - field: paper_type
+        position: "after_printer"
+    brand_value: "Canson"
+    paper_type_processing:
+      format: true
+      strip_regex: ['_[mp]_bk$', '_bk$', '_[mp]$', '\.icc$']
+      code_map_keep_rest: true
+      code_map:
+        aqua: Aquarelle Rag
+        arches88: ARCHES 88
+        archesaquarelle: ARCHES Aquarelle Rag
+        archesbfk: ARCHES BFK Rives White
+        archesbfk_PW: ARCHES BFK Rives Pure White
+        baryta: Baryta Photographique
+        baryta2: Baryta Photographique II
+        barytamatt: Baryta Photographique II Matt
+        prestige: Baryta Prestige
+        prestige2: Baryta Prestige II
+        edition: Edition Etching Rag
+        edition2: Edition Etching Rag II
+        hgloss: Photo HighGloss Premium RC
+        gloss: PhotoGloss Premium RC
+        lustre: PhotoLustre Premium RC
+        satin: PhotoSatin Premium RC
+        platine: Platine Fibre Rag
+        pmk: PrintMaKing Rag
+        bfk: BFK Rives
+        ragphot: Rag Photographique
+        ragphoto: Rag Photographique
+        ragphoto2: Rag Photographique II
+        ragphotd: Rag Photographique Duo
+        velin: Velin Museum Rag
+        montval: Montval Aquarelle
+        phdcanvas: PhotoArt HD Canvas
+        MuseumPro: Museum ProCanvas WR
+        PhotoArtPro: PhotoArt ProCanvas WR
+        somerset_satin_white: Somerset Enhanced Satin White
+        somerset_velvet_white: Somerset Enhanced Velvet White
+        somerset_watercolour_white: Somerset Enhanced Watercolour White
+
+  # ---------------------------------------------------------------------------
+  # Awagami  "Awagami_<Paper>_<weight>gsm_<printer>_<media>"  /  "Awagami_<Paper>_<printer>.am1x"
+  # Examples: "Awagami_Bamboo_Paper_110gsm_P900_VFA", "Awagami_Kozo_Thin_White_PRO-2000-6000_PFAS",
+  #           "Awagami_Bizan_Natural_Medium_Handmade_GP-2000", "Awagami_Inbe_Thick_White_non-FP_GP-4000"
+  # Source: awagami.com/pages/icc-profiles-and-printing-tips (one zip per file).
+  - name: awagami_profiles
+    priority: 88
+    description: "Awagami washi profiles"
+    prefix: "Awagami_"
+    prefix_case_insensitive: true
+    delimiter: "_"
+    structure:
+      - field: paper_type
+        position: "before_printer"
+      - field: printer
+        match_type: "key_search"
+    brand_value: "Awagami"
+    paper_type_processing:
+      format: true
+      strip_regex: ['_(non-)?FP$']   # GP-series: with / without fluorescent-pink ink
+
+  # ---------------------------------------------------------------------------
+  # Breathing Color  "BC_<Paper>_<printer>_[mk|pk]_<media>[_-NN]"
+  # Examples: "BC_Lyve_P7570_mk_WCRW", "BC_VibranceBaryta_IPFx400_PK_CPSGP2280",
+  #           "BC_Silverada_6400_PK_Sp1_-15", "BC_VibrancePhotoMatte_mk_P7000_WCRW"
+  # Legend: breathingcolor.com/pages/icc-profile-instruction (app.breathingcolor.com API).
+  - name: breathing_color_profiles
+    priority: 88
+    description: "Breathing Color profiles"
+    prefix: "BC_"
+    prefix_case_insensitive: true
+    delimiter: "_"
+    structure:
+      - field: paper_type
+        position: "before_printer"
+      - field: printer
+        match_type: "key_search"
+    brand_value: "Breathing Color"
+    paper_type_processing:
+      format: true
+      strip_regex: ['_(mk|pk)$']
+      code_map_keep_rest: true
+      code_map:
+        17M: 17M Satin Gloss
+        17MSatin: 17M Satin
+        17MGloss: 17M Gloss
+        Lyve: Lyve Matte Canvas
+        LyveCanvas: Lyve Matte Canvas
+        Silverada: Silverada Metallic Canvas
+        Crystalline: Crystalline Canvas
+        Chromata: Chromata White Canvas
+        ChromataWhite: Chromata White Canvas
+        Optica: Optica One
+        OpticaOne: Optica One
+        VibGloss: Vibrance Gloss
+        VibLuster: Vibrance Luster
+        VibMetallic: Vibrance Metallic
+        VibPhotoMatte: Vibrance Photo Matte
+        Emblem: Emblem Textured Natural
+        Insignia: Insignia Scrim Vinyl
+        Silhouette: Silhouette Backlit Film
+        Meridian: Meridian HD
+        Renaissance: Renaissance Cotton
+        RiverStone: River Stone Satin Rag
+        RiverStoneRag: River Stone Satin Rag
+        ArtPeelBlckt: Art Peel Blackout
+        BagasseTex: Bagasse Textured
+        BagasseText: Bagasse Textured
+
+  # ---------------------------------------------------------------------------
+  # Innova Art  "Innova_<printer>_<IFA code>_(<media>)_<MK|PK>_<quality>[-V2]"
+  # Examples: "Innova_Canon_Pro-1000_IFA22_(HWFAP)_MK_Highest-V2",
+  #           "Olmec_SC-P700_900_OLM62(EPG)_1440_D55_16bits_V2",
+  #           "Innova_Canon-Pro2000_4000_IFA49_(PPPG2-280)_PK_highest_v2"
+  # Paper is an IFA/OLM code; legend from the item list on innovaart.com/icc-profiles-1/
+  # ("Etching Cotton Rag 315gsm - IFA 22"). Everything after the code is
+  # media setting / print quality and is dropped.
+  - name: innova_profiles
+    priority: 86
+    description: "Innova Art and Olmec profiles with IFA/OLM paper codes"
+    prefix: null
+    prefix_regex: '^(Innova[_-]|Olmec_|Inn-)'
+    prefix_case_insensitive: true
+    delimiter: "_"
+    structure:
+      - field: printer
+        match_type: "key_search"
+      - field: paper_type
+        position: "after_printer"
+    brand_value: "Innova"
+    paper_type_processing:
+      format: true
+      code_map_file: vendor-legends/innova.yaml
+
+  # Innova files that carry no vendor prefix: "Canon_PixmaPro9500mk2_IFA22",
+  # "iPFx300_IFA36_High", "IPF63X0_IFA22_StTexCot315". Only fires when the
+  # token after the printer is a known IFA/OLM code.
+  - name: innova_legacy_profiles
+    priority: 71
+    description: "Innova legacy profiles without vendor prefix (IFA/OLM code after printer)"
+    prefix: null
+    prefix_case_insensitive: true
+    delimiter: "_"
+    structure:
+      - field: printer
+        match_type: "key_search"
+      - field: paper_type
+        position: "after_printer"
+    brand_value: "Innova"
+    paper_type_processing:
+      format: false
+      require_code_map: true
+      code_map_file: vendor-legends/innova.yaml
+
+  # ---------------------------------------------------------------------------
+  # PermaJet  "[NN.]APJ_<printer token>_<Paper>_<media>"
+  # Examples: "APJ_OEMPro1000_FBGoldSilk_PPPP", "APJ_OEMSCP900_TitaniumLustre_PLPP",
+  #           "40.APJ_EPSONSCP900MK_OEM_WALLARTMATT170_EAM", "APJ_OEMPRO1000_BARYTA_RAG_310_BarytaPP"
+  # The printer token glues make/ink onto the model ("OEMSCP900", "CANONPRO1100MK");
+  # the last "_" token is the driver media setting. Upper-case paper names are
+  # expanded via code_map. Legend: permajet.com/icc-profiles/ (page embeds the
+  # profile table as JSON, zips come from admin-ajax.php?action=request_icc_profile_zip).
+  - name: permajet_profiles
+    priority: 86
+    description: "PermaJet profiles"
+    prefix: null
+    prefix_regex: '^(\d+\.)?APJ_'
+    prefix_case_insensitive: true
+    delimiter: "_"
+    structure:
+      - field: printer
+        match_type: "key_search"
+      - field: paper_type
+        position: "after_printer"
+    brand_value: "PermaJet"
+    paper_type_processing:
+      format: true
+      strip_regex: ['^OEM_', '^(MK|PK)_', '_[A-Za-z0-9]+$']   # ink marker, driver media token
+      code_map_file: vendor-legends/permajet.yaml
+
+  # ---------------------------------------------------------------------------
+  # Fotospeed  "1FS_<Paper>_<printer>_Generic[...]"  (1FA_ for the Fine Art range)
+  # Examples: "1FS_PFLustre_SC-P900_Generic", "1FS_NSTBrightWhite_Canon-Pro1100_Generic",
+  #           "1FS_ArtSmoothDuo_Canon-Pro-1000-Generic-20-06-22", "1FA_PlatinumEtching_iPF6400_Generic"
+  # Source: fotospeed.com/profiles/ (per printer/ink pages). Naming is loose;
+  # the code_map expands the vendor's abbreviations (NST = Natural Soft
+  # Textured, HWS = High White Smooth, PF = Pearl/Platinum Fibre range).
+  - name: fotospeed_profiles
+    priority: 84
+    description: "Fotospeed profiles"
+    prefix: null
+    prefix_regex: '^1F[SA][_-]'
+    prefix_case_insensitive: true
+    delimiter: "_"
+    structure:
+      - field: paper_type
+        position: "before_printer"
+      - field: printer
+        match_type: "key_search"
+    brand_value: "Fotospeed"
+    paper_type_processing:
+      format: true
+      strip_regex: ['^~', '_(Epson|Canon|Generic)$']
+      code_map_keep_rest: true
+      code_map:
+        NST: Natural Soft Textured
+        NSTBrightWhite: Natural Soft Textured Bright White
+        NT: Natural Textured
+        NTBrightWhite: Natural Textured Bright White
+        HWS: High White Smooth
+        DCFilm: Digital Contact Film
+        PFLustre: PF Lustre
+        PFLustreDuo: PF Lustre Duo
+        PFGloss: PF Gloss
+        ArtSmootDuo: Art Smooth Duo
+        HWSDuo: High White Smooth Duo
+        HWSLite: High White Smooth Lite
+        HWSLT: High White Smooth Lite
+        HWSLt: High White Smooth Lite
+        HWSLiteDuo: High White Smooth Lite Duo
+        HWSLtDuo: High White Smooth Lite Duo
+        HighWhiteSmoothDUO: High White Smooth Duo
+        HighWhiteSmoothLITE: High White Smooth Lite
+        NatSoftText: Natural Soft Textured
+        NatText: Natural Textured
+        MattDUO: Matt Duo
+
+  # ---------------------------------------------------------------------------
+  # Red River Paper  "RR <Paper> <Ep|Can> <printer>[ MK|PK][ vN]"
+  # Examples: "RR Arctic Polar Luster Ep 7570-9750", "RR Palo Duro Matte Canvas P9570 P7570",
+  #           "RR UltraPro Satin 4.0 Ep P900", "RR Polar Matte Canon Pro-100 v2",
+  #           "RR UPSatin 4.0 EpR3000", "RR Big Bend Baryta Can iPFX400"
+  # The make token before the printer is stripped; abbreviations expand via
+  # code_map and the product version that follows is kept ("UPSatin 4.0" ->
+  # "UltraPro Satin 4.0"). Source: redrivercatalog.com/profiles/ (per-printer zips).
   - name: red_river_profiles
     priority: 75
     description: "Red River Papers ICC profiles"
@@ -183,17 +948,18 @@ filename_patterns:
     delimiter: " "
     structure:
       - field: paper_type
-        position: "before_printer"  # Everything before printer model
+        position: "before_printer"
       - field: printer
-        match_type: "key_search"    # Search for printer keys in remaining parts
+        match_type: "key_search"
     brand_value: "Red River"
     paper_type_processing:
       format: true
-      remove_brand: "Ep"  # Remove "Ep" prefix (Epson indicator)
+      strip_regex: ['\s(Epson|Canon|Ep|Can|HP)$', '\s(Epson|Canon|Ep|Can|HP)\s(SC|SureColor|Stylus|Pro|Pixma)$']
+      code_map_keep_rest: true
+      code_map_file: vendor-legends/redriver.yaml
 
-  # Pattern 5b: Red River Papers (EMY2 Documentation Files - No Printer in Filename)
-  # Examples: "Red River Paper_RR Arctic Polar Luster (75lb).emy2"
-  # Note: These are documentation files without printer info in filename
+  # Red River EMY2 documentation files carry no printer in the name:
+  # "Red River Paper_RR Arctic Polar Luster (75lb).emy2"
   - name: red_river_emy2_files
     priority: 74
     description: "Red River Papers EMY2 documentation files"
@@ -202,90 +968,15 @@ filename_patterns:
     delimiter: " "
     structure:
       - field: paper_type
-        position: "0+"  # Everything after prefix is paper type
+        position: "0+"
     brand_value: "Red River"
     paper_type_processing:
       format: true
+      code_map_keep_rest: true
+      code_map_file: vendor-legends/redriver.yaml
 
-  # Pattern 5c: ILFORD Galerie profiles (abbreviated paper codes)
-  # Format: ILFORD_<printer>_<paper code>[_<variant>]_<driver media setting>
-  # Examples: "ILFORD_EPSCX500_GPGFS_PGPP250", "ILFORD_CANpro-2_4_6_21_41_61_GTWE_Warm_JPW",
-  #           "ILFORD_CANpro-100S_GPGFG17_PPPS"
-  # The printer key may span several "_" parts; the paper code is resolved via
-  # code_map (longest matching prefix), and the driver media suffix is dropped.
-  # Code legend: https://ilford.com/printer-profiles-paper-settings/ (per-printer listings)
-  - name: ilford_profiles
-    priority: 95
-    description: "ILFORD Galerie profiles with abbreviated paper codes"
-    prefix: "ILFORD_"
-    prefix_case_insensitive: true
-    delimiter: "_"
-    structure:
-      - field: printer
-        match_type: "substring"
-      - field: paper_type
-        position: "after_printer"
-    brand_value: "Ilford"
-    paper_type_processing:
-      format: true   # Only used when a code is missing from code_map
-      code_map:
-        # Pro photo / baryta
-        GCG: Crystal Gloss
-        GPCG: Crystal Gloss
-        IGPGP: Gloss
-        IGPLP: Lustre
-        IGPSP: Satin Photo
-        GPSGP: Smooth Gloss
-        GPSPP: Smooth Pearl
-        GPMG: Metallic Gloss
-        GPRP: Raster Silk
-        GPGFG: Gold Fibre Gloss
-        GPGFS: Gold Fibre Silk
-        GPGMS: Gold Mono Silk
-        GPMSW: Mono Silk Warmtone
-        GGFP: Gold Fibre Pearl
-        GPFP: Gold Fibre Pearl
-        GGFR: Gold Fibre Rag
-        # Duo
-        GPHWM: Heavyweight Duo Matt
-        IGPMD: Premium Matt Duo
-        GPSGD: Semigloss Duo
-        GLPD: Lustre Photo Duo
-        GPLPD: Lustre Photo Duo
-        # Fine art cotton / matt
-        GPSC: Smooth Cotton Rag
-        GPTC: Textured Cotton Rag
-        GPCAT: Cotton Artist Textured
-        GSCS: Smooth Cotton Sonora
-        GPSCS: Smooth Cotton Sonora
-        GMCM: Matt Cotton Medina
-        GSCSJ: Smooth Cotton Sprite 280
-        GTCSJ: Textured Cotton Sprite 280
-        GSCPJ: Smooth Cotton Pearlescent
-        GTCPJ: Textured Cotton Pearlescent
-        GPFAS: Fine Art Smooth
-        GPFASP: Fine Art Smooth Pearl
-        GPFATS: Fine Art Textured Silk
-        # Washi
-        GPWT: Washi Torinoko
-        GTWE: Tesuki-Washi Echizen 110
-        GTWE_Neutral: Tesuki-Washi Echizen 110
-        GTWE_Warm: Tesuki-Washi Echizen 110 Warmtone
-        GTWE_Pearl: Tesuki-Washi Echizen 110 Pearl
-        GTWE110nt: Tesuki-Washi Echizen 110
-        GTWE110wt: Tesuki-Washi Echizen 110 Warmtone
-        GTWEP110: Tesuki-Washi Echizen 110 Pearl
-        # Canvas
-        GPCN: Canvas Natural
-        CPCN: Canvas Natural
-        GPFACG: Canvas Galicia
-        GPSFAC: Smooth Fine Art Canvas
-        GDCBW: Decor Canvas Bright White 380
-        GDCG: Decor Canvas Glossy 400
-        GDCMC: Decor Canvas Matt Cotton 370
-
-  # Pattern 6: Fallback - substring printer detection
-  # Used when specific patterns don't match
+  # ---------------------------------------------------------------------------
+  # Fallback: any known printer token anywhere in the name
   - name: fallback_printer_detection
     priority: 10
     description: "Fallback: find any printer key in filename"
@@ -294,9 +985,9 @@ filename_patterns:
     delimiter: " "
     structure:
       - field: printer
-        match_type: "substring"  # Case-insensitive substring search
+        match_type: "substring"
       - field: paper_type
-        position: "remaining"  # Everything except printer key
+        position: "remaining"
     brand_value: "Unknown"
     paper_type_processing:
       format: true

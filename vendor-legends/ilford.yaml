@@ -1,0 +1,116 @@
+# ILFORD Galerie / Omnijet Studio paper codes -> vendor paper names.
+# Source: the per-printer tables on https://ilford.com/printer-profiles-paper-settings/
+# (served by ilford.com/ilford-profiles/multi-load-selected-profiles-via-ajax.php),
+# surveyed Sept 2026 across all 57 printer entries (1318 files).
+# Keys are matched as a case-insensitive prefix of the paper token; the
+# longest key wins and a trailing weight/variant digit is allowed (GPGFG17).
+# Pro photo / baryta
+GCG: Crystal Gloss
+GPCG: Crystal Gloss
+IGPGP: Gloss
+IGPGP11: Gloss
+GPGP: Gloss
+IGPLP: Lustre
+IGPLP11: Lustre
+GPLP: Lustre
+IGPSP: Satin Photo
+GPSGP: Smooth Gloss
+GPSGP11: Smooth Gloss
+GPSGP12: Smooth Gloss
+IGPSGP: Smooth Gloss
+IGPSGP12: Smooth Gloss
+GPSPP: Smooth Pearl
+GPSPP12: Smooth Pearl
+IGPSPP: Smooth Pearl
+IGPSPP12: Smooth Pearl
+GPMG: Metallic Gloss
+IGPMG: Metallic Gloss
+GPRP: Raster Silk
+IGPRP: Raster Silk
+GPGRS: Raster Silk
+GPGFG: Gold Fibre Gloss
+IGPGFG: Gold Fibre Gloss
+GPGFS: Gold Fibre Silk
+IGPGFS: Gold Fibre Silk
+IGGFS: Gold Fibre Silk
+IGGFS13Roll: Gold Fibre Silk
+IGGFS13Sheet: Gold Fibre Silk
+IGGSFS: Gold Fibre Silk
+GPGMS: Gold Mono Silk
+IGPGMS: Gold Mono Silk
+GPMSW: Mono Silk Warmtone
+GGFP: Gold Fibre Pearl
+GPFP: Gold Fibre Pearl
+GGFR: Gold Fibre Rag
+# Duo
+GPHWM: Heavyweight Duo Matt
+IGPHWM: Heavyweight Duo Matt
+IGPHWMP: Heavyweight Duo Matt
+IGSHMP: Heavyweight Duo Matt
+IGPMD: Premium Matt Duo
+GPMD: Premium Matt Duo
+GPSGD: Semigloss Duo
+IGPSGD: Semigloss Duo
+GLPD: Lustre Photo Duo
+GPLPD: Lustre Photo Duo
+GPSLD: Lustre Photo Duo
+IGPLDP: Lustre Photo Duo
+# Fine art cotton / matt
+GPSC: Smooth Cotton Rag
+IGPSC: Smooth Cotton Rag
+GPTC: Textured Cotton Rag
+IGPTC: Textured Cotton Rag
+GPCAT: Cotton Artist Textured
+IGPCAT: Cotton Artist Textured
+GSCS: Smooth Cotton Sonora
+GPSCS: Smooth Cotton Sonora
+GMCM: Matt Cotton Medina
+GPMCM: Matt Cotton Medina
+GSCSJ: Smooth Cotton Sprite 280
+GTCSJ: Textured Cotton Sprite 280
+GSCPJ: Smooth Cotton Pearlescent
+GTCPJ: Textured Cotton Pearlescent
+GPFAS: Fine Art Smooth
+IGPFAS: Fine Art Smooth
+GPFASP: Fine Art Smooth Pearl
+GFASP: Fine Art Smooth Pearl
+GPFATS: Fine Art Textured Silk
+GFATS: Fine Art Textured Silk
+# Washi
+GPWT: Washi Torinoko
+GTWE: Tesuki-Washi Echizen 110
+GTWE_Neutral: Tesuki-Washi Echizen 110
+GTWE_Warm: Tesuki-Washi Echizen 110 Warmtone
+GTWE_Pearl: Tesuki-Washi Echizen 110 Pearl
+GTWE110nt: Tesuki-Washi Echizen 110
+GTWE110wt: Tesuki-Washi Echizen 110 Warmtone
+GTWEP110: Tesuki-Washi Echizen 110 Pearl
+GPTWEP110: Tesuki-Washi Echizen 110 Pearl
+GTW-E: Tesuki-Washi Echizen 110
+GTW-EW: Tesuki-Washi Echizen 110 Warmtone
+GTW-EP: Tesuki-Washi Echizen 110 Pearl
+# Canvas
+GPCN: Canvas Natural
+CPCN: Canvas Natural
+GPFACG: Canvas Galicia
+GPSFAC: Smooth Fine Art Canvas
+IGSFAC: Smooth Fine Art Canvas
+GDCBW: Decor Canvas Bright White 380
+GDCG: Decor Canvas Glossy 400
+GDCMC: Decor Canvas Matt Cotton 370
+# Omnijet Studio
+ONQ5GP8S: Studio Glossy 200
+ONQ5GP10S: Studio Glossy 250
+ONQ5SP8S: Studio Satin 200
+ONQ5SP10S: Studio Satin 250
+ONQ5PP10S: Studio Pearl 250
+ONQ5MP10S: Studio Matt Photo 250
+ONQ5MP12S: Studio Matt 235
+ONQ5PGP10S: Studio Platinum Gloss 250
+ONQ5RP10S: Studio Raster 250
+ONQ5GEP7S: Studio Photo Realistic Gloss 175
+ONQ5SEP7S: Studio Photo Realistic Satin 175
+ONQ3GEP7: Studio Photo Realistic Gloss 175
+ONQ3GEP9: Studio Photo Realistic Gloss 235
+ONQ3SEP7: Studio Photo Realistic Satin 175
+ONQ3SEP9: Studio Photo Realistic Satin 235

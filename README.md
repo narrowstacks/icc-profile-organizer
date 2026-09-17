@@ -13,9 +13,13 @@ rewritten, so the print dialog in Photoshop, Lightroom, etc. shows one
 alphabetical list grouped by printer, then paper brand, then paper — instead
 of whatever abbreviation scheme each paper vendor happened to use.
 
-Ships with parsers for MOAB, Canson, Hahnemuehle, Red River, ILFORD and Epson
-naming schemes; anything else is a few lines of YAML away
-([configuration.md](configuration.md)).
+Ships with parsers for MOAB, Canson Infinity, Hahnemuehle, Red River, ILFORD,
+Awagami, Breathing Color, Innova, PermaJet and Fotospeed naming schemes plus
+the Epson and Canon driver profile sets, and knows ~90 printers' worth of
+vendor spellings (`EpP900`, `OEMSCP900`, `P7570-9570`, `x400`, …). Anything
+else is a few lines of YAML away ([configuration.md](configuration.md)); the
+survey of every vendor's naming lives in
+[docs/vendor-filename-survey.md](docs/vendor-filename-survey.md).
 
 ## Install
 

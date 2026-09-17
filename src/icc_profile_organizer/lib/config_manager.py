@@ -172,10 +172,15 @@ class ConfigManager:
             ]
 
             ptp_raw = pattern_dict.get('paper_type_processing', {})
+            code_map = self._load_code_map_file(ptp_raw.get('code_map_file'))
+            code_map.update({str(k): str(v) for k, v in (ptp_raw.get('code_map') or {}).items()})
             paper_type_processing = PaperTypeProcessing(
                 format=ptp_raw.get('format', False),
                 remove_brand=ptp_raw.get('remove_brand'),
-                code_map={str(k): str(v) for k, v in (ptp_raw.get('code_map') or {}).items()},
+                code_map=code_map,
+                strip_regex=[str(r) for r in (ptp_raw.get('strip_regex') or [])],
+                code_map_keep_rest=bool(ptp_raw.get('code_map_keep_rest', False)),
+                require_code_map=bool(ptp_raw.get('require_code_map', False)),
             )
 
             return FilenamePattern(
@@ -189,10 +194,31 @@ class ConfigManager:
                 brand_value=pattern_dict.get('brand_value'),
                 paper_type_processing=paper_type_processing,
                 variants=variants,
+                delimiter_aliases=[str(a) for a in (pattern_dict.get('delimiter_aliases') or [])],
+                brand_fallback=pattern_dict.get('brand_fallback'),
+                prefix_regex=pattern_dict.get('prefix_regex'),
             )
         except Exception as e:
             self.log(f"Error parsing pattern {pattern_dict.get('name', 'unknown')}: {e}", level='WARNING')
             return None
+
+    def _load_code_map_file(self, rel_path: Optional[str]) -> Dict[str, str]:
+        """Load a ``code: name`` legend from a YAML file next to config.yaml.
+
+        Lets long vendor legends live in ``vendor-legends/<vendor>.yaml``
+        instead of inline in the pattern. Missing files log a warning and
+        yield an empty map.
+        """
+        if not rel_path or not YAML_AVAILABLE:
+            return {}
+        path = Path.cwd() / rel_path
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                data = yaml.safe_load(f) or {}
+            return {str(k): str(v) for k, v in data.items()}
+        except Exception as e:
+            self.log(f"Warning: Could not load code map {path}: {e}", level='WARNING')
+            return {}
 
     def _build_default_pattern_matcher(self):
         """Build a PatternMatcher with hardcoded fallback patterns."""
@@ -253,7 +279,7 @@ class ConfigManager:
                     FieldDefinition('printer', match_type='key_search'),
                 ],
                 brand_value='Red River',
-                paper_type_processing=PaperTypeProcessing(format=True, remove_brand='Ep'),
+                paper_type_processing=PaperTypeProcessing(format=True),
             ),
             FilenamePattern(
                 name='red_river_emy2_files', priority=74,

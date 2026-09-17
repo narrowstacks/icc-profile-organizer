@@ -1,0 +1,89 @@
+# Red River Paper abbreviations -> product names.
+# Red River's filenames shorten paper names inconsistently ("UPSatin",
+# "UltrProSatn", "PaloDuroSat", "PD SG Rag", "SanGab Fiber"). Keys are
+# matched as a case-insensitive prefix of the paper part; the text that
+# follows (product version such as "4.0", or a weight) is kept.
+# Product names from https://www.redrivercatalog.com/ (Sept 2026 survey of
+# every per-printer zip on redrivercatalog.com/profiles/).
+UPSatin: UltraPro Satin
+UP Satin: UltraPro Satin
+UltraProSatin: UltraPro Satin
+UltraProSatn: UltraPro Satin
+UltrProSatn: UltraPro Satin
+UPGloss: UltraPro Gloss
+UP Gloss: UltraPro Gloss
+UltraProGloss: UltraPro Gloss
+UPLuster: UltraPro Luster
+UP Luster: UltraPro Luster
+UltraProLuster: UltraPro Luster
+APLuster: Arctic Polar Luster
+AP Luster: Arctic Polar Luster
+APSatin: Arctic Polar Satin
+AP Satin: Arctic Polar Satin
+APGloss: Arctic Polar Gloss
+ArcPol Gloss: Arctic Polar Gloss
+ArcPol Satin: Arctic Polar Satin
+ArcPol Luster: Arctic Polar Luster
+Arc Pol Gloss: Arctic Polar Gloss
+Arc Pol Satin: Arctic Polar Satin
+Arc Pol Luster: Arctic Polar Luster
+ArcticPolarSatin: Arctic Polar Satin
+ArcticPolarLuster: Arctic Polar Luster
+ArcticPolarGloss: Arctic Polar Gloss
+PaloDuroSat: Palo Duro Satin
+PaloDuro SG: Palo Duro SoftGloss Rag
+PD SG Rag: Palo Duro SoftGloss Rag
+Palo Duro SG Rag: Palo Duro SoftGloss Rag
+PDSmooth: Palo Duro Smooth Rag
+PD Smooth: Palo Duro Smooth Rag
+PD Smooth Rag: Palo Duro Smooth Rag
+PDEtch: Palo Duro Etching
+PD Etching: Palo Duro Etching
+PDSatin: Palo Duro Satin
+PapCan: Paper Canvas
+Prem Matte: Premium Matte
+PremMatte: Premium Matte
+PremiumMatte: Premium Matte
+PolarMatte: Polar Matte
+PG Metallic: Polar Gloss Metallic
+PL Metallic: Polar Luster Metallic
+PPMetallic: Polar Pearl Metallic
+RivLinen: River Linen
+River Linen: River Linen
+SanGab Fiber: San Gabriel Baryta SemiGloss
+SanGabriel: San Gabriel Baryta SemiGloss
+San Gabriel: San Gabriel Baryta SemiGloss
+San GabrielSGF: San Gabriel Baryta SemiGloss
+Aurora FA Wht: Aurora Art White
+Aurora FA Nat: Aurora Art Natural
+Aurora Nat: Aurora Art Natural
+Aurora White: Aurora Art White
+Aurora Natural: Aurora Art Natural
+GreenPix: GreenPix
+Blanco Canvas: Blanco Matte Canvas
+Zeppelin: Zeppelin SemiGloss
+Zeppelin SemiGloss: Zeppelin SemiGloss
+Zeppelin Semigloss: Zeppelin SemiGloss
+UltraPro SemiGloss Duo: UltraPro SemiGloss Duo
+UltraPro Semigloss Duo: UltraPro SemiGloss Duo
+UltraPro: UltraPro
+Ultra Pro: UltraPro
+Ultra Pro Satin: UltraPro Satin
+Ultra Pro Gloss: UltraPro Gloss
+Ultra Pro Luster: UltraPro Luster
+Ultra Pro Semi Gloss Duo: UltraPro SemiGloss Duo
+SanGabrielSGF: San Gabriel Baryta SemiGloss
+SanGabriel SGF: San Gabriel Baryta SemiGloss
+Palo Duro SGR: Palo Duro SoftGloss Rag
+PD SGR: Palo Duro SoftGloss Rag
+PDSGR: Palo Duro SoftGloss Rag
+Palo Duro Softgloss Rag: Palo Duro SoftGloss Rag
+Palo Duro Soft Gloss Rag: Palo Duro SoftGloss Rag
+Arc Pol Lustr: Arctic Polar Luster
+Aurora Whit: Aurora Art White
+Palo Du Etch: Palo Duro Etching
+Papr Canv: Paper Canvas
+Ult Pro Gloss: UltraPro Gloss
+Ultr Pro Satin: UltraPro Satin
+Ultr Pro Gloss: UltraPro Gloss
+UltraPro Semi Gloss: UltraPro SemiGloss

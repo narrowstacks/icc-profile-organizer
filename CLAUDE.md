@@ -25,10 +25,15 @@ src/icc_profile_organizer/
   organize_profiles.py   CLI (`icc-organizer`): scan → match → rename → copy → update descriptions
   config_wizard.py       TUI (`icc-config-wizard`), WIP; manual YAML editing is the reliable path
   defaults.yaml          shipped printer aliases / brands / remappings (NO filename patterns)
-  lib/pattern_matching.py  PatternMatcher, format_paper_type(), lookup_paper_code()
-  lib/config_manager.py    loads defaults.yaml + ./config.yaml, builds the matcher
+  lib/pattern_matching.py  PatternMatcher, format_paper_type(), split_paper_code()
+  lib/pattern_types.py     FilenamePattern / FieldDefinition / PaperTypeProcessing dataclasses
+  lib/printer_keys.py      PrinterKeyIndex: bounded, longest-wins printer alias lookup
+  lib/config_manager.py    loads defaults.yaml + ./config.yaml (+ vendor-legends), builds the matcher
   lib/…                    file scanning, copy, PDF hashing, ICC description rewrite, ColorSync install
 config.yaml              user overrides — in this repo it is where ALL filename patterns live
+vendor-legends/*.yaml    long paper-code legends (Ilford, Innova, PermaJet, Red River) pulled
+                         into patterns via `code_map_file`
+docs/vendor-filename-survey.md  what each vendor's download actually looks like (Sept 2026)
 profiles/                source profiles (gitignored, user data)
 organized-profiles/      output (gitignored, regenerable)
 profile_organizer.log    written to the cwd on every run
@@ -42,7 +47,17 @@ there is no `requirements.txt`.
 - **`config.yaml` replaces top-level keys wholesale.** If it defines
   `printer_names`, the packaged `printer_names` are ignored entirely, not
   merged. Consequence: a new printer alias or brand must be added to **both**
-  `config.yaml` and `src/icc_profile_organizer/defaults.yaml`.
+  `config.yaml` and `src/icc_profile_organizer/defaults.yaml` (the shared
+  section of both files is identical; keep it that way).
+- **Printer aliases are bounded, case-insensitive substrings; longest wins.**
+  `P900` matches `EpP900`/`OEMSCP900` but never `P9000`; `PRO-1000` beats
+  `PRO-100`. Aliases may contain the delimiter (`CANpro-2_4_6_21_41_61`).
+  So one spelling per token is enough — no case variants needed.
+- **Family tokens map to the smallest model**, `printer_remappings` collapse
+  onto owned printers (`P7570-9570`, `x400`, `EPP700`, `PRO-2000-6000`).
+- **Paper names must be ASCII** — the ICC `desc` tag writer replaces anything
+  else with `?` and the verify step (description == stem) then fails.
+  `Albrecht Duerer`, `Hahnemuehle`.
 - **Filename patterns come from exactly one place.** `config.yaml`'s
   `filename_patterns` if present, else the hardcoded list in
   `config_manager._build_default_pattern_matcher()`. `defaults.yaml` carries
@@ -86,10 +101,15 @@ and the execute run has been verified.
    iframe at `ilford.com/ilford-profiles/get-related-profiles.php`; the
    installation PDF's legend was incomplete). Use the vendor's names verbatim.
 3. **Teach the config, in this order of preference:** a printer alias
-   (`printer_names`, both files) → a brand alias → a `code_map` entry on an
-   existing pattern → a new `filename_patterns` entry. A new pattern needs
-   `prefix`, `delimiter`, a `structure`, and `brand_value`; copy the closest
-   existing one. Priority: vendor-prefixed patterns 74–100, fallback is 10.
+   (`printer_names`, both files) → a brand alias (both files; also used by
+   `brand_search`) → a `code_map` entry on an existing pattern (or in its
+   `vendor-legends/<vendor>.yaml`) → a `strip_regex` → a new
+   `filename_patterns` entry. A new pattern needs `prefix` (or
+   `prefix_regex`), `delimiter`, a `structure`, and `brand_value`; copy the
+   closest existing one. Priority: vendor-prefixed patterns 74–100,
+   prefix-less `require_code_map` patterns 71–72, fallback is 10. Before
+   inventing a pattern, check `docs/vendor-filename-survey.md` — every major
+   vendor's shape is already there.
 4. **Regression-check the existing corpus.** Capture
    `uv run icc-organizer ./profiles --detailed --profiles-only 2>&1 | grep -E ' -> |Could not' | sort`
    before and after your change (use `git stash` for "before") and `diff`
@@ -112,7 +132,10 @@ and the execute run has been verified.
 ## Verification
 
 There is no test suite. The regression diff in step 4 is the test; run it for
-any change to `pattern_matching.py`, `config_manager.py`, or the YAML. For
+any change to `pattern_matching.py`, `printer_keys.py`, `config_manager.py`,
+or the YAML. For a wider check, the Sept 2026 vendor corpus (~14k filenames)
+can be rebuilt with the fetch recipes in `docs/vendor-filename-survey.md` and
+run through `ConfigManager.match_filename()`. For
 code paths that copy, run `--execute` against a scratch copy of `profiles/`
 into a scratch `--output-dir` and confirm `Files copied == Files processed`
 and the on-disk counts match.

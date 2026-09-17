@@ -41,19 +41,41 @@ Consolidate printer aliases to canonical names. This allows the organizer to rec
 printer_names:
   Canon Pixma PRO-100:
     - PRO-100
-    - Pro-100
     - CanPro-100
     - pixmapro100
   Epson P900:
     - P900
     - SC-P900
     - EpsSC-P900
-    - p900
+    - P900_700 # Epson driver profiles: one set for P900/P700
 ```
+
+How aliases are matched (see `lib/printer_keys.py`):
+
+- **Case-insensitive, bounded substring.** One spelling covers `P900`,
+  `EpP900`, `OEMSCP900` and `P900_700`, so you rarely need case variants.
+- **Longest alias wins.** `PRO-1000` beats `PRO-100` inside
+  `CANpro-1000`; among equally long aliases the one earliest in the name wins
+  (`RR … P9570 P7570` picks P9570, which is then remapped).
+- **A numeric edge must not touch another digit.** `P900` never matches
+  inside `P9000`, `Pro-10` never inside `Pro-100`. Bare-number aliases such
+  as `"3880"` are therefore safe, but quote them in YAML.
+- **Aliases may contain the pattern delimiter** and then span several parts:
+  `CANpro-2_4_6_21_41_61` (Ilford's PRO-2000/4000/6000 family token) or
+  `Epson SureColor P7570`.
+
+Vendors ship one profile set per printer family (`P7570-9570`,
+`PRO-2000-6000`, `x400` = iPF6400/6450/8400/9400). Map the family token to the
+smallest model and let `printer_remappings` collapse it onto the printer you
+own. The shipped table covers every printer the surveyed vendors list; see
+[docs/vendor-filename-survey.md](docs/vendor-filename-survey.md).
 
 ### 2. Brand Name Mappings
 
-Normalize paper brand variations to canonical names.
+Normalize paper brand variations to canonical names. The aliases are also
+what a `brand_search` field (see below) recognises inside a filename, so
+multi-word spellings such as `Canson Infinity` or `Red River Paper` belong
+here too.
 
 ```yaml
 brand_name_mappings:
@@ -214,7 +236,21 @@ The code legend comes from ILFORD's per-printer listings at
 appendix is incomplete). Codes not yet in `code_map` fall through to plain
 formatting and show up as raw abbreviations — add them to the map.
 
-#### 7. Fallback Printer Detection (Priority: 10)
+#### 7. Other vendors
+
+`config.yaml` also ships patterns for Awagami (`Awagami_<Paper>_<gsm>_<printer>_<media>`),
+Breathing Color (`BC_<Paper>_<printer>_<mk|pk>_<media>`), Innova/Olmec
+(`Innova_<printer>_IFA22_(media)_MK_Highest`, IFA/OLM codes), PermaJet
+(`[NN.]APJ_<printer token>_<Paper>_<media>`), Fotospeed
+(`1FS_<Paper>_<printer>_Generic`), Epson driver profiles
+(`Epson_SC-P900_700_LegacyPlatine`, `SC-P9000_P7000_Series_V …`) and Canon
+driver profiles (`CN_PRO-2000_520_FineArtPhoto`). Each pattern's comment in
+`config.yaml` names the vendor page its legend was read from; the long
+legends live in `vendor-legends/*.yaml` and are pulled in with
+`code_map_file`. The survey behind them is in
+[docs/vendor-filename-survey.md](docs/vendor-filename-survey.md).
+
+#### 8. Fallback Printer Detection (Priority: 10)
 
 Last resort pattern that searches for any printer key in the filename.
 
@@ -251,15 +287,33 @@ filename_patterns:
 - **priority** (int, required): Processing order (higher = earlier). Range: 0-100
 - **description** (string): Human-readable description
 - **prefix** (string or null): Text the filename must start with; null for no prefix requirement
+- **prefix_regex** (string): Alternative to `prefix` — a case-insensitive regex
+  anchored at the start whose match is removed (`'^(\d+\.)?APJ_'` accepts
+  `40.APJ_…`; `'^1F[SA][_-]'` accepts `1FS_` and `1FA_`)
 - **prefix_case_insensitive** (bool): Whether prefix matching ignores case
 - **delimiter** (string): Character used to split filename parts (default: " ")
+- **delimiter_aliases** (list): Characters replaced by the delimiter before
+  prefix matching and splitting (`["_"]` lets the space-delimited EPSON SC-
+  pattern accept `EPSON_SC-P900_Awagami_…` and `EPSON SC-P5300_MOAB …`)
 - **variants** (list): Multiple prefix options for same pattern (used by HFA pattern)
 - **structure** (list): Field definitions specifying how to extract printer, brand, paper_type
 - **brand_value** (string or null): Fixed brand for this pattern; null to extract from filename
+- **brand_fallback** (string): Brand used when a `brand_search` field finds no
+  known brand alias (the EPSON SC- pattern falls back to `Epson`)
 - **paper_type_processing** (object):
   - **format** (bool): Apply CamelCase separation and title case formatting
   - **remove_brand** (string or null): Brand name to strip from paper type
+  - **strip_regex** (list): Case-insensitive regexes deleted from the raw
+    paper string first — driver media codes, ink markers, version tags
+    (`'_[mp]_bk$'`, `'\sv\d+$'`, `'^\d{3,5}\s'`)
   - **code_map** (object): Abbreviated paper code → full paper name (see below)
+  - **code_map_file** (string): YAML file of `code: name` pairs, relative to
+    `config.yaml`, merged under any inline `code_map` (`vendor-legends/ilford.yaml`)
+  - **code_map_keep_rest** (bool): Keep and format what follows a resolved
+    code (`UPSatin 4.0` → `UltraPro Satin 4.0`, `PRBaryta315` → `Photo Rag Baryta 315`)
+  - **require_code_map** (bool): The pattern only matches when the code
+    resolves — lets a prefix-less pattern (Ilford's legacy `n_GPFAS_CANipf6300`
+    files) fire only on that vendor's codes
 
 #### Paper Code Maps
 
@@ -276,11 +330,18 @@ paper_type_processing:
 
 The raw paper-type string (e.g. `GPGFG17_PPPS`) is matched against the keys
 by **longest prefix**, case-insensitively. A key only matches if it ends at a
-boundary — end of string, the delimiter, or a digit — so `GPGFG` matches
-`GPGFG17_PPPS` but `GPSC` does not match `GPSCS_EMP`. On a hit, the mapped name
-is used as-is (no further formatting) and everything after the code (variant
-suffixes, driver media settings) is dropped. If nothing matches, the normal
-`format` processing applies to the raw string.
+boundary — end of string, the delimiter, a digit or any other non-letter — so
+`GPGFG` matches `GPGFG17_PPPS` and `OLM67` matches `OLM67(HWFAP)`, but `GPSC`
+does not match `GPSCS_EMP`. On a hit, the mapped name is used as-is (no
+further formatting) and everything after the code (variant suffixes, driver
+media settings) is dropped unless `code_map_keep_rest` is set, in which case
+the remainder is formatted and appended. If nothing matches, the normal
+`format` processing applies to the raw string (or the pattern is skipped when
+`require_code_map` is set).
+
+Weights are always written as bare numbers: `format` turns `110gsm` into
+`110`. Paper names must stay ASCII because the ICC `desc` tag is ASCII
+(`Albrecht Duerer`, not `Albrecht Dürer`).
 
 #### Field Definition Options
 
@@ -314,6 +375,14 @@ structure:
 
   - field: paper_type
     position: "remaining" # Everything except the found printer key
+
+  # Brand embedded after the printer ("EPSON SC-P900 Canson Infinity Platine…")
+  - field: brand
+    match_type: "brand_search" # Longest brand alias at the start of the
+    # after-printer parts; sets the point where after_brand starts
+  - field: paper_type
+    position: "after_brand" # Everything after the found brand (or after
+    # the printer when no brand matched)
 ```
 
 ### Prefix Variants
@@ -337,11 +406,13 @@ Some patterns need multiple prefix options:
 Patterns are evaluated in order of priority (highest first). Example:
 
 1. MOAB Profiles (priority: 100)
-2. EPSON SC- (priority: 90)
-3. HFA (priority: 85)
-4. CIFA (priority: 80)
-5. Red River Papers (priority: 75)
-6. Fallback (priority: 10)
+2. ILFORD (priority: 95)
+3. EPSON SC- / Canon driver (priority: 90)
+4. Awagami, Breathing Color (priority: 88)
+5. Innova, PermaJet (86), HFA (85), Fotospeed (84)
+6. CIFA (priority: 80)
+7. Red River Papers (priority: 75-74), ILFORD legacy (72)
+8. Fallback (priority: 10)
 
 ### Automatic Processing
 

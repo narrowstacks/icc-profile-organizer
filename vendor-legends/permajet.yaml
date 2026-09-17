@@ -1,0 +1,379 @@
+# PermaJet paper tokens -> paper names with weight.
+# Generated from the profile table embedded in https://www.permajet.com/icc-profiles/
+# (the `iccdl.profiles` JSON: paper + weight per profile), Sept 2026. Filenames
+# use either CamelCase ("MattProofing") or upper-case ("MATTPROOFING160")
+# tokens, so both spellings are listed; weights are only attached where the
+# paper ships in a single weight.
+ALPHANATRAG: Alpha Natural Rag 310
+AlphaNatrualRag: Alpha Natural Rag 310
+AlphaNaturalRag: Alpha Natural Rag 310
+ALPHANATURALRAG: Alpha Natural Rag 310
+AlphaNaturalRag310: Alpha Natural Rag 310
+ALPHANATURALRAG310: Alpha Natural Rag 310
+ALPHANATURALRAG_310: Alpha Natural Rag 310
+AlphaNaturalRag_310: Alpha Natural Rag 310
+AlphaNRag: Alpha Natural Rag 310
+AlphaRag: Alpha Natural Rag 310
+ArtisticWatercolour: Artist Watercolour 250
+ARTISTICWATERCOLOUR: Artist Watercolour 250
+ArtistWatercolour: Artist Watercolour 250
+ARTISTWATERCOLOUR: Artist Watercolour 250
+ArtistWatercolour250: Artist Watercolour 250
+ARTISTWATERCOLOUR250: Artist Watercolour 250
+ARTISTWATERCOLOUR_250: Artist Watercolour 250
+ArtistWatercolour_250: Artist Watercolour 250
+BARYTA: Baryta Rag 310
+BARYTARAG: Baryta Rag 310
+BarytaRag: Baryta Rag 310
+BarytaRAG: Baryta Rag 310
+BarytaRag310: Baryta Rag 310
+BARYTARAG310: Baryta Rag 310
+BarytaRag_310: Baryta Rag 310
+BARYTARAG_310: Baryta Rag 310
+DoubleSidedLustre: Double Sided Lustre 295
+DOUBLESIDEDLUSTRE: Double Sided Lustre 295
+DoubleSidedLustre295: Double Sided Lustre 295
+DOUBLESIDEDLUSTRE295: Double Sided Lustre 295
+DOUBLESIDEDLUSTRE_295: Double Sided Lustre 295
+DoubleSidedLustre_295: Double Sided Lustre 295
+DoubleSidedMatt: Double Sided Matt 250
+DOUBLESIDEDMATT: Double Sided Matt 250
+DOUBLESIDEDMATT250: Double Sided Matt 250
+DoubleSidedMatt250: Double Sided Matt 250
+DoubleSidedMatt_250: Double Sided Matt 250
+DOUBLESIDEDMATT_250: Double Sided Matt 250
+DoubleSidedOyster: Double Sided Oyster 285
+DOUBLESIDEDOYSTER: Double Sided Oyster 285
+DoubleSidedOyster285: Double Sided Oyster 285
+DOUBLESIDEDOYSTER285: Double Sided Oyster 285
+DoubleSidedOyster_285: Double Sided Oyster 285
+DOUBLESIDEDOYSTER_285: Double Sided Oyster 285
+DoubleSidedPortfolio: Double Sided Portfolio 230
+DOUBLESIDEDPORTFOLIO: Double Sided Portfolio 230
+DOUBLESIDEDPORTFOLIO230: Double Sided Portfolio 230
+DoubleSidedPortfolio230: Double Sided Portfolio 230
+DOUBLESIDEDPORTFOLIO_230: Double Sided Portfolio 230
+DoubleSidedPortfolio_230: Double Sided Portfolio 230
+DSLUSTRE: DS Lustre 295
+DSLustre: DS Lustre 295
+DSLustre295: DS Lustre 295
+DSLUSTRE295: DS Lustre 295
+DSLUSTRE_295: DS Lustre 295
+DSLustre_295: DS Lustre 295
+DSMatt: DS Matt 250
+DSMATT: DS Matt 250
+DSMATT250: DS Matt 250
+DSMatt250: DS Matt 250
+DSMATT_250: DS Matt 250
+DSMatt_250: DS Matt 250
+DSOYSTER: DS Oyster 285
+DSOyster: DS Oyster 285
+DSOYSTER285: DS Oyster 285
+DSOyster285: DS Oyster 285
+DSOyster_285: DS Oyster 285
+DSOYSTER_285: DS Oyster 285
+DSPortfolio: DS Portfolio 230
+DSPORTFOLIO: DS Portfolio 230
+DSPORTFOLIO230: DS Portfolio 230
+DSPortfolio230: DS Portfolio 230
+DSPORTFOLIO_230: DS Portfolio 230
+DSPortfolio_230: DS Portfolio 230
+DSPortfolioRag: DS Portfolio 230
+ETCHING: Etching Rag 310
+ETCHINGRAG: Etching Rag 310
+EtchingRag: Etching Rag 310
+EtchingRAG: Etching Rag 310
+ETCHINGRAG310: Etching Rag 310
+EtchingRag310: Etching Rag 310
+ETCHINGRAG_310: Etching Rag 310
+EtchingRag_310: Etching Rag 310
+FBDISTINCTION: FB Distinction 320
+FBDistinction: FB Distinction 320
+FBDistinction320: FB Distinction 320
+FBDISTINCTION320: FB Distinction 320
+FBDistinction_320: FB Distinction 320
+FBDISTINCTION_320: FB Distinction 320
+FBGOLDSILK: FB Gold Silk 315
+FBGoldSilk: FB Gold Silk 315
+FBGOLDSILK315: FB Gold Silk 315
+FBGoldSilk315: FB Gold Silk 315
+FBGOLDSILK_315: FB Gold Silk 315
+FBGoldSilk_315: FB Gold Silk 315
+FBMATT: FB Matt 285
+FBMatt: FB Matt 285
+FBMatt285: FB Matt 285
+FBMATT285: FB Matt 285
+FBMATT_285: FB Matt 285
+FBMatt_285: FB Matt 285
+FBMonoGloss: FB Mono Gloss Baryta 320
+FBMONOGLOSSBARYTA: FB Mono Gloss Baryta 320
+FBMonoGlossBaryta: FB Mono Gloss Baryta 320
+FBMonoGlossBaryta320: FB Mono Gloss Baryta 320
+FBMONOGLOSSBARYTA320: FB Mono Gloss Baryta 320
+FBMonoGlossBaryta_320: FB Mono Gloss Baryta 320
+FBMONOGLOSSBARYTA_320: FB Mono Gloss Baryta 320
+FBPearl: FB Pearl 300
+FBPEARL: FB Pearl 300
+FBPEARL300: FB Pearl 300
+FBPearl300: FB Pearl 300
+FBPEARL_300: FB Pearl 300
+FBPearl_300: FB Pearl 300
+FBROYALGLOSS: FB Royal Gloss 310
+FBRoyalGloss: FB Royal Gloss 310
+FBRoyalGloss310: FB Royal Gloss 310
+FBROYALGLOSS310: FB Royal Gloss 310
+FBRoyalGloss_310: FB Royal Gloss 310
+FBROYALGLOSS_310: FB Royal Gloss 310
+FBSatin: FB Satin 310
+FBSATIN: FB Satin 310
+FBSatin310: FB Satin 310
+FBSATIN310: FB Satin 310
+FBSatin_310: FB Satin 310
+FBSATIN_310: FB Satin 310
+GalleryEtch: Gallery Etching 310
+GALLERYETCH: Gallery Etching 310
+GALLERYETCHING: Gallery Etching 310
+GalleryEtching: Gallery Etching 310
+GalleryEtching310: Gallery Etching 310
+GALLERYETCHING310: Gallery Etching 310
+GalleryEtching_310: Gallery Etching 310
+GALLERYETCHING_310: Gallery Etching 310
+GLOSS: Gloss 271
+Gloss: Gloss 271
+Gloss271: Gloss 271
+GLOSS271: Gloss 271
+GLOSS_271: Gloss 271
+Gloss_271: Gloss 271
+HERITAGEETCHINGRAG: Etching Rag 310
+HERITAGERAGETCHING: Etching Rag 310
+HERITAGESMOOTHRAG: Smooth Rag 310
+HERITAGEWATERCOLOURRAG: Watercolour Rag 310
+JupiterCanvas: Jupiter Matt Canvas 350
+JupiterMatt: Jupiter Matt Canvas 350
+JUPITERMATTCANVAS: Jupiter Matt Canvas 350
+JupiterMattCanvas: Jupiter Matt Canvas 350
+JupiterMattCanvas350: Jupiter Matt Canvas 350
+JUPITERMATTCANVAS350: Jupiter Matt Canvas 350
+JupiterMattCanvas_350: Jupiter Matt Canvas 350
+JUPITERMATTCANVAS_350: Jupiter Matt Canvas 350
+MattPlus: Matt Plus 240
+MATTPLUS: Matt Plus 240
+MattPlus240: Matt Plus 240
+MATTPLUS240: Matt Plus 240
+MATTPLUS_240: Matt Plus 240
+MattPlus_240: Matt Plus 240
+MATTPROOFING: Matt Proofing 160
+MattProofing: Matt Proofing 160
+MattProofing160: Matt Proofing 160
+MATTPROOFING160: Matt Proofing 160
+MattProofing_160: Matt Proofing 160
+MATTPROOFING_160: Matt Proofing 160
+MercuryCanvas: Mercury Ultra White Matt Canvas
+MercuryUltraWhiteMattCanvas: Mercury Ultra White Matt Canvas
+MERCURYULTRAWHITEMATTCANVAS: Mercury Ultra White Matt Canvas
+MERCURYULTRAWHITEMATTCANVAS400: Mercury Ultra White Matt Canvas 400
+MercuryUltraWhiteMattCanvas400: Mercury Ultra White Matt Canvas 400
+MERCURYULTRAWHITEMATTCANVAS405: Mercury Ultra White Matt Canvas 405
+MercuryUltraWhiteMattCanvas405: Mercury Ultra White Matt Canvas 405
+MERCURYULTRAWHITEMATTCANVAS_400: Mercury Ultra White Matt Canvas 400
+MercuryUltraWhiteMattCanvas_400: Mercury Ultra White Matt Canvas 400
+MERCURYULTRAWHITEMATTCANVAS_405: Mercury Ultra White Matt Canvas 405
+MercuryUltraWhiteMattCanvas_405: Mercury Ultra White Matt Canvas 405
+MonoGlossBaryta: FB Mono Gloss Baryta 320
+MUSEUMHERITAGE: Museum Heritage 310
+MuseumHeritage: Museum Heritage 310
+MuseumHeritage310: Museum Heritage 310
+MUSEUMHERITAGE310: Museum Heritage 310
+MuseumHeritage_310: Museum Heritage 310
+MUSEUMHERITAGE_310: Museum Heritage 310
+NeptuneCanvas: Neptune Canvas 400
+NEPTUNECANVAS: Neptune Canvas 400
+NeptuneCanvas400: Neptune Canvas 400
+NEPTUNECANVAS400: Neptune Canvas 400
+NEPTUNECANVAS_400: Neptune Canvas 400
+NeptuneCanvas_400: Neptune Canvas 400
+NeptuneNaturalMatt: Neptune Natural Matt 400
+NEPTUNENATURALMATT: Neptune Natural Matt 400
+NeptuneNaturalMatt400: Neptune Natural Matt 400
+NEPTUNENATURALMATT400: Neptune Natural Matt 400
+NeptuneNaturalMatt_400: Neptune Natural Matt 400
+NEPTUNENATURALMATT_400: Neptune Natural Matt 400
+NeptuneNaturalMattCanvas: Neptune Natural Matt Canvas 400
+NEPTUNENATURALMATTCANVAS: Neptune Natural Matt Canvas 400
+NeptuneNaturalMattCanvas400: Neptune Natural Matt Canvas 400
+NEPTUNENATURALMATTCANVAS400: Neptune Natural Matt Canvas 400
+NeptuneNaturalMattCanvas_400: Neptune Natural Matt Canvas 400
+NEPTUNENATURALMATTCANVAS_400: Neptune Natural Matt Canvas 400
+OMEGARAG: Omega Rag 310
+OmegaRag: Omega Rag 310
+OMEGARAG310: Omega Rag 310
+OmegaRag310: Omega Rag 310
+OMEGARAG_310: Omega Rag 310
+OmegaRag_310: Omega Rag 310
+Oyster: Oyster 271
+OYSTER: Oyster 271
+Oyster271: Oyster 271
+OYSTER271: Oyster 271
+OYSTER_271: Oyster 271
+Oyster_271: Oyster 271
+P1-RRecycledPolyCanvas: P1-R Recycled Poly Canvas 280
+P10PREMIUMGLOSS: P10 Premium Gloss 265
+P10PremiumGloss: P10 Premium Gloss 265
+P10PremiumGloss265: P10 Premium Gloss 265
+P10PREMIUMGLOSS265: P10 Premium Gloss 265
+P10PremiumGloss_265: P10 Premium Gloss 265
+P10PREMIUMGLOSS_265: P10 Premium Gloss 265
+P10PRODUCTIONGLOSS: P10 Production Gloss 265
+P10ProductionGloss: P10 Production Gloss 265
+P10ProductionGloss265: P10 Production Gloss 265
+P10PRODUCTIONGLOSS265: P10 Production Gloss 265
+P10PRODUCTIONGLOSS_265: P10 Production Gloss 265
+P10ProductionGloss_265: P10 Production Gloss 265
+P11PremiumLustre: P11 Premium Lustre 265
+P11PREMIUMLUSTRE: P11 Premium Lustre 265
+P11PREMIUMLUSTRE265: P11 Premium Lustre 265
+P11PremiumLustre265: P11 Premium Lustre 265
+P11PREMIUMLUSTRE_265: P11 Premium Lustre 265
+P11PremiumLustre_265: P11 Premium Lustre 265
+P1RRECYCLEDPOLYCANVAS: P1-R Recycled Poly Canvas 280
+P1RRecycledPolyCanvas: P1-R Recycled Poly Canvas 280
+P1RRECYCLEDPOLYCANVAS280: P1-R Recycled Poly Canvas 280
+P1RRecycledPolyCanvas280: P1-R Recycled Poly Canvas 280
+P1RRecycledPolyCanvas_280: P1-R Recycled Poly Canvas 280
+P1RRECYCLEDPOLYCANVAS_280: P1-R Recycled Poly Canvas 280
+P30SmoothArtMatt: P30 Smooth Art Matt 210
+P30SMOOTHARTMATT: P30 Smooth Art Matt 210
+P30SmoothArtMatt210: P30 Smooth Art Matt 210
+P30SMOOTHARTMATT210: P30 Smooth Art Matt 210
+P30SMOOTHARTMATT_210: P30 Smooth Art Matt 210
+P30SmoothArtMatt_210: P30 Smooth Art Matt 210
+P31LIGHTTEXTUREDARTMATT: P31 Light Textured Art Matt 210
+P31LightTexturedArtMatt: P31 Light Textured Art Matt 210
+P31LIGHTTEXTUREDARTMATT210: P31 Light Textured Art Matt 210
+P31LightTexturedArtMatt210: P31 Light Textured Art Matt 210
+P31LIGHTTEXTUREDARTMATT_210: P31 Light Textured Art Matt 210
+P31LightTexturedArtMatt_210: P31 Light Textured Art Matt 210
+P3Canvas: P3 Matt Canvas 380
+P3MattCanvas: P3 Matt Canvas 380
+P3MATTCANVAS: P3 Matt Canvas 380
+P3MattCanvas380: P3 Matt Canvas 380
+P3MATTCANVAS380: P3 Matt Canvas 380
+P3MATTCANVAS_380: P3 Matt Canvas 380
+P3MattCanvas_380: P3 Matt Canvas 380
+P4Canvas: P4 Cotton Canvas
+P4COTTONCANVAS: P4 Cotton Canvas
+P4CottonCanvas: P4 Cotton Canvas
+P4COTTONCANVAS360: P4 Cotton Canvas 360
+P4CottonCanvas360: P4 Cotton Canvas 360
+P4CottonCanvas380: P4 Cotton Canvas 380
+P4COTTONCANVAS380: P4 Cotton Canvas 380
+P4COTTONCANVAS_360: P4 Cotton Canvas 360
+P4CottonCanvas_360: P4 Cotton Canvas 360
+P4CottonCanvas_380: P4 Cotton Canvas 380
+P4COTTONCANVAS_380: P4 Cotton Canvas 380
+P50LightTexturedWallpaper: P50 Light Textured Wallpaper 170
+P50LIGHTTEXTUREDWALLPAPER: P50 Light Textured Wallpaper 170
+P50LIGHTTEXTUREDWALLPAPER170: P50 Light Textured Wallpaper 170
+P50LightTexturedWallpaper170: P50 Light Textured Wallpaper 170
+P50LIGHTTEXTUREDWALLPAPER_170: P50 Light Textured Wallpaper 170
+P50LightTexturedWallpaper_170: P50 Light Textured Wallpaper 170
+P5BrightWhiteMattCanvas: P5 Bright White Matt Canvas 350
+P5BRIGHTWHITEMATTCANVAS: P5 Bright White Matt Canvas 350
+P5BrightWhiteMattCanvas350: P5 Bright White Matt Canvas 350
+P5BRIGHTWHITEMATTCANVAS350: P5 Bright White Matt Canvas 350
+P5BrightWhiteMattCanvas_350: P5 Bright White Matt Canvas 350
+P5BRIGHTWHITEMATTCANVAS_350: P5 Bright White Matt Canvas 350
+P5Canvas: P5 Bright White Matt Canvas 350
+PhotoArtSilk: Photo Art Silk 290
+PHOTOARTSILK: Photo Art Silk 290
+PHOTOARTSILK290: Photo Art Silk 290
+PhotoArtSilk290: Photo Art Silk 290
+PhotoArtSilk_290: Photo Art Silk 290
+PHOTOARTSILK_290: Photo Art Silk 290
+PHOTOLUSTRE: Photo Lustre 310
+PhotoLustre: Photo Lustre 310
+PHOTOLUSTRE310: Photo Lustre 310
+PhotoLustre310: Photo Lustre 310
+PHOTOLUSTRE_310: Photo Lustre 310
+PhotoLustre_310: Photo Lustre 310
+PortfolioRag: Portfolio Rag 220
+PORTFOLIORAG: Portfolio Rag 220
+PortfolioRag220: Portfolio Rag 220
+PORTFOLIORAG220: Portfolio Rag 220
+PortfolioRag_220: Portfolio Rag 220
+PORTFOLIORAG_220: Portfolio Rag 220
+PortraitRag: Portrait Rag
+PORTRAITRAG: Portrait Rag
+PortraitRag285: Portrait Rag 285
+PORTRAITRAG285: Portrait Rag 285
+PORTRAITRAG305: Portrait Rag 305
+PortraitRag305: Portrait Rag 305
+PortraitRag_285: Portrait Rag 285
+PORTRAITRAG_285: Portrait Rag 285
+PORTRAITRAG_305: Portrait Rag 305
+PortraitRag_305: Portrait Rag 305
+PORTRAITWHITE: Portrait White 285
+PortraitWhite: Portrait White 285
+PortraitWhite285: Portrait White 285
+PORTRAITWHITE285: Portrait White 285
+PortraitWhite_285: Portrait White 285
+PORTRAITWHITE_285: Portrait White 285
+SaturnCanvas: Saturn Semi-Gloss Canvas 350
+SaturnSemi-GlossCanvas: Saturn Semi-Gloss Canvas 350
+SaturnSemiGlossCanvas: Saturn Semi-Gloss Canvas 350
+SATURNSEMIGLOSSCANVAS: Saturn Semi-Gloss Canvas 350
+SaturnSemiGlossCanvas350: Saturn Semi-Gloss Canvas 350
+SATURNSEMIGLOSSCANVAS350: Saturn Semi-Gloss Canvas 350
+SaturnSemiGlossCanvas_350: Saturn Semi-Gloss Canvas 350
+SATURNSEMIGLOSSCANVAS_350: Saturn Semi-Gloss Canvas 350
+SMOOTH: Smooth Rag 310
+SMOOTHGLOSS: Smooth Gloss 280
+SmoothGloss: Smooth Gloss 280
+SMOOTHGLOSS280: Smooth Gloss 280
+SmoothGloss280: Smooth Gloss 280
+SMOOTHGLOSS_280: Smooth Gloss 280
+SmoothGloss_280: Smooth Gloss 280
+SMOOTHPEARL: Smooth Pearl 280
+SmoothPearl: Smooth Pearl 280
+SMOOTHPEARL280: Smooth Pearl 280
+SmoothPearl280: Smooth Pearl 280
+SMOOTHPEARL_280: Smooth Pearl 280
+SmoothPearl_280: Smooth Pearl 280
+SmoothRag: Smooth Rag 310
+SMOOTHRAG: Smooth Rag 310
+SmoothRag310: Smooth Rag 310
+SMOOTHRAG310: Smooth Rag 310
+SmoothRag_310: Smooth Rag 310
+SMOOTHRAG_310: Smooth Rag 310
+TITANIUMGLOSS: Titanium Gloss 300
+TitaniumGloss: Titanium Gloss 300
+TitaniumGloss300: Titanium Gloss 300
+TITANIUMGLOSS300: Titanium Gloss 300
+TitaniumGloss_300: Titanium Gloss 300
+TITANIUMGLOSS_300: Titanium Gloss 300
+TITANIUMLUSTRE: Titanium Lustre 280
+TitaniumLustre: Titanium Lustre 280
+TitaniumLustre280: Titanium Lustre 280
+TITANIUMLUSTRE280: Titanium Lustre 280
+TITANIUMLUSTRE_280: Titanium Lustre 280
+TitaniumLustre_280: Titanium Lustre 280
+ULTRAPEARL: Ultra Pearl 295
+UltraPearl: Ultra Pearl 295
+UltraPearl295: Ultra Pearl 295
+ULTRAPEARL295: Ultra Pearl 295
+UltraPearl_295: Ultra Pearl 295
+ULTRAPEARL_295: Ultra Pearl 295
+WallArtMatt: Wall Art Matt 170
+WALLARTMATT: Wall Art Matt 170
+WallArtMatt170: Wall Art Matt 170
+WALLARTMATT170: Wall Art Matt 170
+WALLARTMATT_170: Wall Art Matt 170
+WallArtMatt_170: Wall Art Matt 170
+WATERCOLOUR: Watercolour Rag 310
+WatercolourRag: Watercolour Rag
+WATERCOLOURRAG: Watercolour Rag
+WatercolourRAG: Watercolour Rag 310
+WATERCOLOURRAG310: Watercolour Rag 310
+WatercolourRag310: Watercolour Rag 310
+WatercolourRag_310: Watercolour Rag 310
+WATERCOLOURRAG_310: Watercolour Rag 310

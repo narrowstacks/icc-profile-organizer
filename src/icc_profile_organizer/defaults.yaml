@@ -1,99 +1,491 @@
 # Default configuration values for ICC Profile Organizer
-# These serve as fallback values if config.yaml is not found or incomplete
+# These serve as fallback values if config.yaml is not found or incomplete.
+# NOTE: config.yaml replaces these top-level keys wholesale, so keep the
+# printer_names / brand_name_mappings / printer_remappings here in sync
+# with config.yaml. Filename patterns live only in config.yaml.
 
-# Printer name mappings (alias: canonical name)
+# Printer name mappings (canonical name: [aliases]).
+#
+# Aliases are matched case-insensitively as bounded substrings anywhere in a
+# filename token, so one spelling covers "P900", "EpP900", "OEMSCP900" and
+# "P900_700". The longest alias wins and a numeric edge must not touch another
+# digit ("P900" never matches inside "P9000"). Aliases containing the
+# pattern delimiter span several tokens ("CANpro-2_4_6_21_41_61").
+#
+# Vendors ship one profile set per printer family; family tokens map to the
+# smallest model and printer_remappings collapse them onto the printer you own.
+# Sources for the aliases: the download pages of Hahnemuehle, Canson Infinity,
+# Moab, Red River, Ilford, Awagami, Breathing Color, Innova, PermaJet and
+# Fotospeed plus the Epson/Canon driver profile sets (Sept 2026 survey).
 printer_names:
-  "Canon Pixma PRO-100":
-    - "PRO-100"
-    - "Pro-100"
-    - "pro-100"
-    - "pixmapro100"
-    - "pro100"
-    - "CanPro-100"
-    - "CanPro100"
-    - "canpro-100"
-    - "canpro100"
-    - "CANPRO-100"
-    - "CANPRO100"
-  "Canon iPF6450":
-    - "Can6450"
-    - "iPF6450"
-    - "ipf6450"
-    - "iPf6450"
-    - "ipf6400"
-    - "IPF6400"
-    - "iPFX400"
-  "Canon iPF8400":
-    - "Can8400"
-  "Canon imagePROGRAF PRO-2000":
-    - "CANpro-2_4_6_21_41_61"   # Ilford: one profile set for PRO-2000/4000/6000/2100/4100/6100
-    - "Canpro2_4_6_21_41_61"
-  "Epson P700":
-    - "P700"
-    - "SC-P700"
-    - "EpsSC-P700"
-    - "p700"
-  "Epson P900":
-    - "P900"
-    - "SC-P900"
-    - "EpsSC-P900"
-    - "p900"
-  "Epson P7570":
-    - "P7570"
-    - "SC-P7570"
-    - "p7570"
-    - "EpsSC-P7570"
-    - "Epson SureColor P7570"
-    - "7570"
-  "Epson P7500":
-    - "P7500"
-    - "SC-P7500"
-    - "p7500"
-    - "EPSCX500"   # Ilford: SureColor P7500/P9500
-  "Epson P9500":
-    - "EpsSC-P9500"
-  "Epson P9570":
-    - "P9570"
-    - "SC-P9570"
-    - "9570"
+  # ---------------------------------------------------------------- Canon Pixma
+  Canon Pixma PRO-1:
+    - PRO-1
+    - CANPRO-1
+    - PixmaPro1
+    - PixmaPro-1
+    - Pro1
+  Canon Pixma PRO-10:
+    - PRO-10
+    - PRO-10S
+    - CANpro-10S
+    - PixmaPro10
+    - Pro10
+    - Pro10s
+  Canon Pixma PRO-100:
+    - PRO-100
+    - PRO-100S
+    - pixmapro100
+    - pro100
+    - Pro_100
+    - CanPro-100
+    - CanPro100
+    - CANpro-100S
+  Canon Pixma PRO-200:
+    - PRO-200
+    - PRO-200S
+    - CANpix-200
+    - Pro200
+    - PixmaPro200
+  Canon Pixma Pro9000 Mark II:
+    - Pro9000
+    - PRO-9000
+    - Pro9000mkII
+    - 9000MK2
+  Canon Pixma Pro9500 Mark II:
+    - Pro9500
+    - PRO-9500
+    - Pro9500mkII
+    - 9500MK2
+  Canon Pixma iP8720:
+    - iP8720
+    - iP8750
+    - iP8760
+    - CANiP8700
+    - CAN87xx
+  # -------------------------------------------------------- Canon imagePROGRAF
+  Canon imagePROGRAF PRO-300:
+    - PRO-300
+    - CANpro-300
+    - Pro300
+  Canon imagePROGRAF PRO-310:
+    - PRO-310
+    - CANpro-310
+    - Pro310
+  Canon imagePROGRAF PRO-1000:
+    - PRO-1000
+    - CANpro-1000
+    - Pro1000
+    - Pro_1000     # Fotospeed
+  Canon imagePROGRAF PRO-1100:
+    - PRO-1100
+    - Canpro1100
+    - Pro1100
+  Canon imagePROGRAF PRO-2000:
+    - PRO-2000
+    - Pro2000
+    - Pro_2000
+    - CANpro-2_4_6_21_41_61   # Ilford: one set for PRO-2000/4000/6000/2100/4100/6100
+    - Canpro2_4_6_21_41_61
+    - CANpro-2
+  Canon imagePROGRAF PRO-4000:
+    - PRO-4000
+    - Pro4000
+  Canon imagePROGRAF PRO-6000:
+    - PRO-6000
+    - Pro6000
+  Canon imagePROGRAF PRO-4000S:
+    - PRO-4000S
+    - Pro4000S
+    - PRO-6000S
+    - Pro6000S
+    - PRO-4100S
+    - PRO-6100S
+  Canon imagePROGRAF PRO-2100:
+    - PRO-2100
+    - Pro2100
+  Canon imagePROGRAF PRO-4100:
+    - PRO-4100
+    - Pro4100
+  Canon imagePROGRAF PRO-6100:
+    - PRO-6100
+    - Pro6100
+  Canon imagePROGRAF PRO-2600:
+    - PRO-2600
+    - Pro2600
+    - Pro_2600
+    - Canpro26_46_6600      # Ilford: PRO-2600/4600/6600
+    - Canpro26
+  Canon imagePROGRAF PRO-4600:
+    - PRO-4600
+    - Pro4600
+  Canon imagePROGRAF PRO-6600:
+    - PRO-6600
+    - Pro6600
+  Canon imagePROGRAF GP-2000:
+    - GP-2000
+    - GP2000
+    - GP-300
+  Canon imagePROGRAF GP-4000:
+    - GP-4000
+    - GP4000
+  Canon imagePROGRAF GP-2600S:
+    - GP-2600S
+    - GP-4600S
+    - GP-6600S
+    - GP2600
+    - GP4600
+    - GP6600
+  Canon iPF5000:
+    - iPF5000
+    - IPFx000      # Breathing Color: iPF5000/8000/9000
+    - "5000"
+  Canon iPF8000:
+    - iPF8000
+  Canon iPF9000:
+    - iPF9000
+  Canon iPF5100:
+    - iPF5100
+    - CANipf51_61_81        # Ilford: iPF5100/6100/8100
+  Canon iPF6100:
+    - iPF6100
+    - iPFx100      # Breathing Color / Innova: iPF5100/6100/8100/9100
+    - x100
+    - "6100"
+    - "5100"
+  Canon iPF8100:
+    - iPF8100
+  Canon iPF9100:
+    - iPF9100
+  Canon iPF6300:
+    - iPF6300
+    - iPFx300
+    - x300
+    - iPF63X0
+    - CANiPF6300-8300
+    - "6300"
+  Canon iPF6350:
+    - iPF6350
+    - "6350"
+  Canon iPF8300:
+    - iPF8300
+    - "8300"
+  Canon iPF6450:
+    - Can6450
+    - iPF6450
+    - iPF6400
+    - iPF6400S
+    - iPFX400      # Red River / Awagami / Breathing Color: iPF6400/6450/8400/9400
+    - x400
+    - CANipf64_84_9400
+    - CANipf64
+    - "6400"
+  Canon iPF8400:
+    - Can8400
+    - iPF8400
+    - iPF8400S
+    - "8400"
+  Canon iPF9400:
+    - iPF9400
+    - "9400"
+  # ---------------------------------------------------------- Epson SureColor
+  Epson P400:
+    - P400
+    - SC-P400
+    - SCP400
+    - EPP400
+    - EPSC400
+  Epson P600:
+    - P600
+    - SC-P600
+    - SCP600
+    - EpsSC-P600
+    - EPP600
+    - EPSC600
+  Epson P700:
+    - P700
+    - SC-P700
+    - SCP700
+    - EpsSC-P700
+    - EPP700       # Ilford: one set for P700/P900
+    - P700_900     # Innova
+  Epson P800:
+    - P800
+    - SC-P800
+    - SCP800
+    - EpsSC-P800
+    - EPP800
+    - EPSC800
+  Epson P900:
+    - P900
+    - SC-P900
+    - SCP900
+    - EpsSC-P900
+    - P900_700     # Epson driver profiles: one set for P900/P700
+  Epson P5000:
+    - P5000
+    - SC-P5000
+    - SCP5000
+    - EPSC5_7_9000std    # Ilford: P5000/P7000/P9000
+    - EPSC5_7_9000
+  Epson P5300:
+    - P5300
+    - SC-P5300
+    - SCP5300
+    - SCP-5300
+    - EPSC5300
+    - P5350
+    - P5360
+    - P5370
+    - P5380
+  Epson P6000:
+    - P6000
+    - SC-P6000
+    - SCP6000
+    - EPSC6000
+  Epson P8000:
+    - P8000
+    - SC-P8000
+    - SCP8000
+    - EPSC8000
+  Epson P6500:
+    - P6500
+    - SC-P6500
+    - SCP6500
+    - EPSC65_8500
+  Epson P8500:
+    - P8500
+    - P8500D
+    - P8500DM
+    - SC-P8500
+  Epson P7000:
+    - P7000
+    - SC-P7000
+    - SCP7000
+    - P7000std
+    - EPSC7000
+    - SC-P9000_7000
+  Epson P9000:
+    - P9000
+    - SC-P9000
+    - SCP9000
+    - P9000std
+  Epson P7300:
+    - P7300
+    - SC-P7300
+    - P7360
+    - P7370
+  Epson P9300:
+    - P9300
+    - SC-P9300
+    - P9360
+    - P9370
+  Epson P7500:
+    - P7500
+    - SC-P7500
+    - SCP7500
+    - SC7500
+    - EpsSC-P7500
+    - EPSCX500     # Ilford: SureColor P7500/P9500
+    - P7560
+  Epson P9500:
+    - P9500
+    - SC-P9500
+    - SCP9500
+    - SC9500
+    - EpsSC-P9500
+    - P9500_7500   # Epson driver profiles: one set for P9500/P7500
+    - P9560
+  Epson P7570:
+    - P7570
+    - SC-P7570
+    - EpsSC-P7570
+    - Epson SureColor P7570
+    - Epson SureColor SC-P7570
+    - "7570"       # Red River Paper uses just "7570" or "7570-9570"
+  Epson P9570:
+    - P9570
+    - SC-P9570
+    - "9570"       # Red River Paper uses just "9570"
+  Epson P10000:
+    - P10000
+    - SC-P10000
+    - SCP10000
+    - EPSC10000
+    - P10_20000    # Innova
+  Epson P20000:
+    - P20000
+    - SC-P20000
+    - SCP20000
+    - P20K
+  Epson P20500:
+    - P20500
+    - SC-P20500
+    - EPSC20500
+    - P20570
+    - P20580
+  # ------------------------------------------------------- Epson Stylus Pro
+  Epson Pro 3800:
+    - "3800"
+    - Pro3800
+  Epson Pro 3880:
+    - "3880"
+    - Pro3880
+    - EPSpro3880
+  Epson Pro 4800:
+    - "4800"
+  Epson Pro 4880:
+    - "4880"
+  Epson Pro 4900:
+    - "4900"
+    - Pro4900
+  Epson Pro 7600:
+    - "7600"
+    - x600         # Breathing Color: 7600/9600/10600
+  Epson Pro 9600:
+    - "9600"
+  Epson Pro 10600:
+    - "10600"
+  Epson Pro 7800:
+    - "7800"
+    - x800         # Breathing Color: 3800/4800/7800/9800
+  Epson Pro 9800:
+    - "9800"
+  Epson Pro 7880:
+    - "7880"
+    - x880         # Breathing Color: 4880/7880/9880/11880
+  Epson Pro 9880:
+    - "9880"
+  Epson Pro 11880:
+    - "11880"
+  Epson Pro 7890:
+    - "7890"
+    - x890         # Breathing Color: 7890/9890
+  Epson Pro 9890:
+    - "9890"
+  Epson Pro 7900:
+    - "7900"
+    - x900         # Breathing Color: 4900/7900/9900
+  Epson Pro 9900:
+    - "9900"
+  # ----------------------------------------------------- Epson Stylus Photo
+  Epson R800:
+    - R800
+  Epson R1800:
+    - R1800
+  Epson R1900:
+    - R1900
+  Epson R2000:
+    - R2000
+  Epson R2400:
+    - R2400
+  Epson R2880:
+    - R2880
+  Epson R3000:
+    - R3000
+    - EPSON3000    # PermaJet
+  Epson 1400:
+    - R1400
+    - "1430"
+  Epson XP-15000:
+    - XP-15000
+    - XP15000
+  Epson XP-960:
+    - XP-960
+    - XP960
+    - XP-970
+    - XP970
+    - XP-980
+  Epson ET-8550:
+    - ET-8550
+    - ET8550
+    - ET-8500
+    - ET8500
+  Epson ET-7750:
+    - ET-7750
+    - ET7750
+  Epson ET-18100:
+    - ET-18100
+    - ET18100
+  # ----------------------------------------------------------------- HP
+  HP Z2100:
+    - Z2100
+  HP Z3100:
+    - Z3100
+  HP Z3200:
+    - Z3200
+  HP Z6:
+    - Z6
+  HP Z9:
+    - Z9
+    - HPz9
+    - Z9+
+    - Z9Pro
+    - Z9+dr
 
-# Paper brand names
-paper_brands:
-  - Moab
-  - Canson
-  - Hahnemuehle
-  - Red River
-  - Ilford
-
-# Brand name mappings (alias: canonical name)
+# Brand name mappings (canonical name: [aliases]). Aliases are also used to
+# recognise a brand inside "EPSON SC-P900 <Brand> <Paper>.emy2" style names.
 brand_name_mappings:
-  "Canson":
-    - "cifa"
-    - "CIFA"
-    - "canson"
-    - "Canson"
-  "Hahnemuehle":
-    - "HFA"
-    - "hfa"
-    - "Hahnemuehle"
-    - "hahnemuehle"
-  "MOAB":
-    - "MOAB"
-    - "Moab"
-    - "moab"
-  "Red River":
-    - "Red River"
-    - "red river"
-    - "RR"
-  "Ilford":
-    - "ILFORD"
-    - "Ilford"
-    - "ilford"
+  Canson:
+    - cifa
+    - Canson
+    - Canson Infinity
+  Hahnemuehle:
+    - HFA
+    - Hahnemuehle
+    - Hahnemühle
+  MOAB:
+    - MOAB
+    - Moab
+  Ilford:
+    - ILFORD
+    - Ilford
+  Red River:
+    - Red River
+    - Red River Paper
+    - RR
+  Awagami:
+    - Awagami
+  Breathing Color:
+    - Breathing Color
+    - BC
+  Innova:
+    - Innova
+    - Olmec
+  PermaJet:
+    - PermaJet
+    - APJ
+  Fotospeed:
+    - Fotospeed
+  Epson:
+    - Epson
+  Canon:
+    - Canon
 
-# Printer remappings (consolidate similar printers for multi-printer profiles, since you probably won't have both printers at the same time)
+paper_brands:
+  - Hahnemuehle
+  - Canson
+  - MOAB
+  - Ilford
+  - Red River
+  - Awagami
+  - Breathing Color
+  - Innova
+  - PermaJet
+  - Fotospeed
+  - Epson
+  - Canon
+
+# Collapse printers you do not own onto the one you do (one folder per
+# physical printer). Vendors ship one profile set per family, so the members
+# below share identical profiles with the target.
 printer_remappings:
-  "Canon iPF8400": "Canon iPF6450"
-  "Epson P700": "Epson P900"
-  "Epson P7500": "Epson P7570"
-  "Epson P9500": "Epson P7570"
-  "Epson SureColor P7570": "Epson P7570"
+  Canon iPF8400: Canon iPF6450
+  Canon iPF9400: Canon iPF6450
+  Canon imagePROGRAF PRO-4000: Canon imagePROGRAF PRO-2000
+  Canon imagePROGRAF PRO-6000: Canon imagePROGRAF PRO-2000
+  Epson P700: Epson P900
+  Epson P7500: Epson P7570
+  Epson P9500: Epson P7570
+  Epson P9570: Epson P7570
+  Epson SureColor P7570: Epson P7570

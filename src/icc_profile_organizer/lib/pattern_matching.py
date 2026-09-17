@@ -1,63 +1,23 @@
 """Unified pattern matching engine for filename parsing.
 
-Defines the dataclasses that describe a filename pattern (``FieldDefinition``,
-``PatternVariant``, ``PaperTypeProcessing``, ``FilenamePattern``) and the
-``PatternMatcher`` that evaluates them in priority order. Patterns are built
-from configuration by :mod:`icc_profile_organizer.lib.config_manager`.
+``PatternMatcher`` evaluates :class:`FilenamePattern` definitions in priority
+order and returns ``(printer, brand, paper_type)`` for a filename. Pattern
+dataclasses live in :mod:`pattern_types`; printer alias lookup in
+:mod:`printer_keys`. Patterns are built from configuration by
+:mod:`icc_profile_organizer.lib.config_manager`.
 """
 
 import re
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
-
-@dataclass
-class FieldDefinition:
-    """Defines a field in a filename pattern."""
-
-    field: str  # "printer", "paper_type", "brand", etc.
-    position: Optional[Any] = None  # Index, "before_printer", "after_printer", "1+", "remaining", etc.
-    match_type: Optional[str] = None  # "key_search", "substring", etc.
-
-
-@dataclass
-class PatternVariant:
-    """Variant prefix for patterns with multiple prefix options (like HFA variants)."""
-
-    prefix: str
-    prefix_length: int
-
-
-@dataclass
-class PaperTypeProcessing:
-    """Configuration for paper type formatting."""
-
-    format: bool = False  # Apply CamelCase separation
-    remove_brand: Optional[str] = None  # Brand name to remove from paper type
-    # Abbreviation -> full paper name (e.g. "GPGFS" -> "Gold Fibre Silk").
-    # Matched by longest prefix of the raw paper-type string; see lookup_paper_code().
-    code_map: Dict[str, str] = field(default_factory=dict)
-
-
-@dataclass
-class FilenamePattern:
-    """Complete pattern definition for parsing a filename format."""
-
-    name: str
-    priority: int
-    description: str
-    prefix: Optional[str]
-    prefix_case_insensitive: bool
-    delimiter: str
-    structure: List[FieldDefinition]
-    brand_value: Optional[str]
-    paper_type_processing: PaperTypeProcessing
-    variants: List[PatternVariant] = field(default_factory=list)
-
-    def __lt__(self, other):
-        """Enable sorting by priority (higher priority first)."""
-        return self.priority > other.priority
+from .pattern_types import (  # noqa: F401  (re-exported for callers)
+    FieldDefinition,
+    FilenamePattern,
+    PaperTypeProcessing,
+    PatternVariant,
+)
+from .printer_keys import PrinterKeyIndex
 
 
 def format_paper_type(paper_type: str, remove_brand: Optional[str] = None) -> str:
@@ -65,7 +25,7 @@ def format_paper_type(paper_type: str, remove_brand: Optional[str] = None) -> st
 
     Example: "PhotoLuster260" -> "Photo Luster 260"
              "HahnemuehlePhotoLuster260" -> "Photo Luster 260" (remove_brand="Hahnemuehle")
-             "aqua310" -> "Aqua 310"
+             "Bamboo_Paper_110gsm" -> "Bamboo Paper 110" (weights are bare numbers)
     """
     cleaned = paper_type
 
@@ -76,11 +36,16 @@ def format_paper_type(paper_type: str, remove_brand: Optional[str] = None) -> st
     # Replace underscores and plus signs with spaces
     cleaned = cleaned.replace('_', ' ').replace('+', ' ')
 
-    # Separate CamelCase by inserting spaces before capital letters
-    cleaned = re.sub(r'([A-Z][a-z]+)', r' \1', cleaned)
+    # Separate CamelCase by inserting spaces before capital letters that
+    # follow a letter or digit ("PhotoLuster" -> "Photo Luster", but
+    # "Double-Sided" and "Semi-Gloss" keep their hyphen)
+    cleaned = re.sub(r'(?<=[A-Za-z0-9])([A-Z][a-z]+)', r' \1', cleaned)
 
     # Insert space before number sequences that come after letters
     cleaned = re.sub(r'([a-zA-Z])(\d)', r'\1 \2', cleaned)
+
+    # Weights are written as bare numbers: "280gsm" / "280 gsm" -> "280"
+    cleaned = re.sub(r'(\d)\s*gsm\b', r'\1', cleaned, flags=re.IGNORECASE)
 
     # Clean up multiple spaces
     cleaned = re.sub(r'\s+', ' ', cleaned).strip()
@@ -95,15 +60,17 @@ def format_paper_type(paper_type: str, remove_brand: Optional[str] = None) -> st
     return cleaned
 
 
-def lookup_paper_code(raw: str, code_map: Dict[str, str], delimiter: str) -> Optional[str]:
+def split_paper_code(raw: str, code_map: Dict[str, str],
+                     delimiter: str) -> Optional[Tuple[str, str]]:
     """Resolve an abbreviated paper code at the start of ``raw`` via ``code_map``.
 
     The longest key that prefixes ``raw`` (case-insensitive) wins, provided the
-    key ends at a boundary: end of string, the delimiter, or a digit (so
-    "GPGFG17_PPPS" resolves via "GPGFG" but "GPSCS_EMP" does not via "GPSC").
-    Keys may themselves contain the delimiter ("GTWE_Warm").
+    key ends at a boundary: end of string, the delimiter, a digit, or any other
+    non-letter (so "GPGFG17_PPPS" resolves via "GPGFG" and "OLM67(HWFAP)" via
+    "OLM67", but "GPSCS_EMP" does not via "GPSC"). Keys may themselves contain
+    the delimiter ("GTWE_Warm").
 
-    Returns the mapped name, or None if no key matches.
+    Returns (mapped name, unmatched remainder), or None if no key matches.
     """
     raw_lower = raw.lower()
     for key in sorted(code_map, key=len, reverse=True):
@@ -111,9 +78,15 @@ def lookup_paper_code(raw: str, code_map: Dict[str, str], delimiter: str) -> Opt
         if not raw_lower.startswith(key_lower):
             continue
         rest = raw[len(key):]
-        if rest == '' or rest.startswith(delimiter) or rest[0].isdigit():
-            return code_map[key]
+        if rest == '' or rest.startswith(delimiter) or not rest[0].isalpha():
+            return code_map[key], rest
     return None
+
+
+def lookup_paper_code(raw: str, code_map: Dict[str, str], delimiter: str) -> Optional[str]:
+    """Resolve an abbreviated paper code via ``code_map`` (see split_paper_code)."""
+    hit = split_paper_code(raw, code_map, delimiter)
+    return hit[0] if hit else None
 
 
 class PatternMatcher:
@@ -131,8 +104,12 @@ class PatternMatcher:
         """
         self.patterns = sorted(patterns)  # Sort by priority (higher first)
         self.printer_names = printer_names
+        self.printers = PrinterKeyIndex(printer_names)
         self.brand_name_mappings = brand_name_mappings
         self.format_paper_type = format_paper_type_fn
+        # Every spelling a brand may appear under in a filename, longest first.
+        aliases = set(brand_name_mappings) | set(brand_name_mappings.values())
+        self._brand_aliases = sorted(aliases, key=len, reverse=True)
 
     def match(self, filename: str) -> Optional[Tuple[Optional[str], Optional[str], Optional[str]]]:
         """Try to match filename against patterns.
@@ -153,52 +130,38 @@ class PatternMatcher:
 
         return None
 
+    # ------------------------------------------------------------------
+    # Pattern evaluation
+    # ------------------------------------------------------------------
+    def _strip_prefix(self, filename: str, pattern: FilenamePattern) -> Optional[str]:
+        """Return the filename with the pattern prefix removed, or None if absent."""
+        if pattern.prefix_regex:
+            m = re.match(pattern.prefix_regex, filename, flags=re.IGNORECASE)
+            return filename[m.end():] if m else None
+        if pattern.prefix is None:
+            return filename
+        fold = (lambda s: s.lower()) if pattern.prefix_case_insensitive else (lambda s: s)
+        candidates = pattern.variants or [PatternVariant(pattern.prefix, len(pattern.prefix))]
+        for variant in candidates:
+            if fold(filename).startswith(fold(variant.prefix)):
+                return filename[variant.prefix_length:]
+        return None
+
     def _try_pattern(self, filename: str, pattern: FilenamePattern) -> Optional[Tuple[str, str, str]]:
         """Try to match filename against a specific pattern."""
-        # Check prefix match
-        if pattern.prefix is not None:
-            if pattern.variants:
-                # Try variant prefixes
-                prefix_match = None
-                prefix_len = 0
-                for variant in pattern.variants:
-                    if pattern.prefix_case_insensitive:
-                        if filename.lower().startswith(variant.prefix.lower()):
-                            prefix_match = variant.prefix
-                            prefix_len = variant.prefix_length
-                            break
-                    else:
-                        if filename.startswith(variant.prefix):
-                            prefix_match = variant.prefix
-                            prefix_len = variant.prefix_length
-                            break
+        for alias in pattern.delimiter_aliases:
+            filename = filename.replace(alias, pattern.delimiter)
+        remaining = self._strip_prefix(filename, pattern)
+        if remaining is None:
+            return None
 
-                if not prefix_match:
-                    return None
-
-                # Remove prefix and parse
-                remaining = filename[prefix_len:]
-            else:
-                # Single prefix
-                if pattern.prefix_case_insensitive:
-                    if not filename.upper().startswith(pattern.prefix.upper()):
-                        return None
-                    remaining = filename[len(pattern.prefix):]
-                else:
-                    if not filename.startswith(pattern.prefix):
-                        return None
-                    remaining = filename[len(pattern.prefix):]
-        else:
-            # No prefix requirement (fallback pattern)
-            remaining = filename
-
-        # Split remaining part by delimiter
         parts = remaining.split(pattern.delimiter)
+        # Scratch state shared by relative positions (after_printer / after_brand).
+        state: Dict[str, List[str]] = {}
 
-        # Extract fields based on structure
         extracted = {}
         for field_def in pattern.structure:
-            value = self._extract_field(parts, field_def, filename, pattern)
+            value = self._extract_field(parts, field_def, filename, pattern, state)
             if value is not None:
                 extracted[field_def.field] = value
 
@@ -207,6 +170,8 @@ class PatternMatcher:
             brand = pattern.brand_value
         elif 'brand' in extracted:
             brand = extracted['brand']
+        elif pattern.brand_fallback is not None:
+            brand = pattern.brand_fallback
         else:
             brand = 'Unknown'
 
@@ -217,145 +182,134 @@ class PatternMatcher:
                 return None
             extracted['printer'] = 'Unknown'
 
-        # Normalize brand
         brand = self._normalize_brand(brand)
-
-        # Get paper type
-        paper_type = extracted.get('paper_type', 'Unknown')
-
-        # Resolve abbreviated paper codes (already human-readable; skip formatting)
-        if pattern.paper_type_processing.code_map:
-            mapped = lookup_paper_code(paper_type, pattern.paper_type_processing.code_map,
-                                       pattern.delimiter)
-            if mapped is not None:
-                return extracted['printer'], brand, mapped
-
-        # Format paper type if needed
-        if pattern.paper_type_processing.format:
-            remove_brand = pattern.paper_type_processing.remove_brand
-            paper_type = self.format_paper_type(paper_type, remove_brand=remove_brand)
-
+        paper_type = self._process_paper_type(extracted.get('paper_type', 'Unknown'), pattern)
+        if paper_type is None:
+            return None
         return extracted['printer'], brand, paper_type
 
-    def _extract_field(self, parts: List[str], field_def: FieldDefinition,
-                       filename: str, pattern: FilenamePattern) -> Optional[str]:
+    def _process_paper_type(self, raw: str, pattern: FilenamePattern) -> Optional[str]:
+        """Strip noise, resolve codes and format the raw paper-type string.
+
+        Returns None when the pattern requires a code_map hit and none matched.
+        """
+        ptp = pattern.paper_type_processing
+        for regex in ptp.strip_regex:
+            raw = re.sub(regex, '', raw, flags=re.IGNORECASE)
+        raw = raw.strip(pattern.delimiter + ' ')
+
+        # Resolve abbreviated paper codes (already human-readable; skip formatting)
+        if ptp.code_map:
+            hit = split_paper_code(raw, ptp.code_map, pattern.delimiter)
+            if hit is not None:
+                mapped, rest = hit
+                rest = self.format_paper_type(rest) if ptp.code_map_keep_rest else ''
+                return f'{mapped} {rest}'.strip()
+            if ptp.require_code_map:
+                return None
+
+        if ptp.format:
+            return self.format_paper_type(raw, remove_brand=ptp.remove_brand)
+        return raw
+
+    # ------------------------------------------------------------------
+    # Field extraction
+    # ------------------------------------------------------------------
+    def _extract_field(self, parts: List[str], field_def: FieldDefinition, filename: str,
+                       pattern: FilenamePattern, state: Dict[str, List[str]]) -> Optional[str]:
         """Extract a field value based on field definition."""
+        delim = pattern.delimiter
+
         if field_def.match_type == 'key_search':
-            # Search through printer keys
-            for printer_key in self.printer_names.keys():
-                for part in parts:
-                    if part.lower() == printer_key.lower() or \
-                       part == printer_key or \
-                       printer_key.lower() in part.lower():
-                        return self.printer_names.get(printer_key, printer_key)
-            return None
+            hit = self.printers.find_in_parts(parts, delim)
+            return self.printers.canonical(hit[0]) if hit else None
 
-        elif field_def.match_type == 'substring':
-            # Find printer key via case-insensitive substring (longest wins)
-            filename_lower = filename.lower()
-            best_match = None
-            best_key = None
-            for printer_key in self.printer_names.keys():
-                if printer_key.lower() in filename_lower:
-                    if best_key is None or len(printer_key) > len(best_key):
-                        best_key = printer_key
-                        best_match = self.printer_names.get(printer_key, printer_key)
-            return best_match
+        if field_def.match_type == 'substring':
+            hit = self.printers.find(filename)
+            return self.printers.canonical(hit[0]) if hit else None
 
-        elif isinstance(field_def.position, bool):
+        if field_def.match_type == 'brand_search':
+            split = self._split_at_printer(parts, delim)
+            after = split[1] if split else parts
+            brand = self._find_brand(after, delim)
+            if brand is None:
+                state['after_brand'] = after
+                return None
+            state['after_brand'] = after[brand[1]:]
+            return brand[0]
+
+        if isinstance(field_def.position, bool):
             # Guard: bool is a subclass of int; treat as no match
             return None
 
-        elif isinstance(field_def.position, int):
-            # Fixed position
-            if 0 <= field_def.position < len(parts):
-                part = parts[field_def.position]
-                # If this is a printer field, try to look it up in printer names
-                if field_def.field == 'printer':
-                    if part in self.printer_names:
-                        return self.printer_names[part]
-                    for key, value in self.printer_names.items():
-                        if part.lower() == key.lower():
-                            return value
-                        if key.lower() in part.lower() or part.lower() in key.lower():
-                            return value
-                    # No match found, return the raw part (may match later)
-                    return part
-                return part
-            return None
+        if isinstance(field_def.position, int):
+            if not 0 <= field_def.position < len(parts):
+                return None
+            part = parts[field_def.position]
+            if field_def.field == 'printer':
+                hit = self.printers.find(part)
+                # No match found, return the raw part (may match later)
+                return self.printers.canonical(hit[0]) if hit else part
+            return part
 
-        elif field_def.position == "before_printer":
-            # Everything before the printer key
-            split = self._split_at_printer(parts, pattern.delimiter)
+        if field_def.position in ('before_printer', 'after_printer'):
+            split = self._split_at_printer(parts, delim)
             if split is None:
                 return None
-            return pattern.delimiter.join(split[0])
+            chosen = split[0] if field_def.position == 'before_printer' else split[1]
+            return delim.join(chosen) if chosen else None
 
-        elif field_def.position == "after_printer":
-            # Everything after the printer key
-            split = self._split_at_printer(parts, pattern.delimiter)
-            if split is None or not split[1]:
-                return None
-            return pattern.delimiter.join(split[1])
+        if field_def.position == 'after_brand':
+            after = state.get('after_brand')
+            if after is None:
+                split = self._split_at_printer(parts, delim)
+                after = split[1] if split else None
+            return delim.join(after) if after else None
 
-        elif isinstance(field_def.position, str) and field_def.position.endswith('+'):
+        if isinstance(field_def.position, str) and field_def.position.endswith('+'):
             # Range: "1+" or "2+"
             try:
                 start_idx = int(field_def.position[:-1])
-                if start_idx < len(parts):
-                    return pattern.delimiter.join(parts[start_idx:])
             except ValueError:
-                pass
-            return None
+                return None
+            return delim.join(parts[start_idx:]) if start_idx < len(parts) else None
 
-        elif field_def.position == "remaining":
-            # Everything except printer key
-            filename_lower = filename.lower()
-            best_key = None
-            for printer_key in self.printer_names.keys():
-                if printer_key.lower() in filename_lower:
-                    if best_key is None or len(printer_key) > len(best_key):
-                        best_key = printer_key
-            if best_key:
-                return filename_lower.replace(best_key.lower(), '').strip()
-            return None
+        if field_def.position == 'remaining':
+            # Everything except the printer key
+            hit = self.printers.find(filename)
+            if hit is None:
+                return None
+            return (filename[:hit[1]] + filename[hit[2]:]).strip()
 
         return None
 
     def _split_at_printer(self, parts: List[str],
                           delimiter: str) -> Optional[Tuple[List[str], List[str]]]:
-        """Split ``parts`` into (before, after) around the printer key.
-
-        First looks for a single part containing a printer key (original
-        behaviour). If none matches, tries printer keys that themselves contain
-        the delimiter (e.g. "CANpro-2_4_6_21_41_61" with delimiter "_"), which
-        span several parts; the longest such key found wins.
-        """
-        for i, part in enumerate(parts):
-            for printer_key in self.printer_names.keys():
-                if part.lower() == printer_key.lower() or printer_key.lower() in part.lower():
-                    return parts[:i], parts[i + 1:]
-
-        best: Optional[Tuple[int, int]] = None  # (start_part, end_part) inclusive
-        best_len = 0
-        for printer_key in self.printer_names.keys():
-            if delimiter not in printer_key or len(printer_key) <= best_len:
-                continue
-            key_parts = printer_key.lower().split(delimiter)
-            n = len(key_parts)
-            for i in range(len(parts) - n + 1):
-                window = [p.lower() for p in parts[i:i + n]]
-                # Outer parts may carry extra text (e.g. "ILFORD_CANpro-2" -> "CANpro-2")
-                if (window[0].endswith(key_parts[0]) and window[-1].startswith(key_parts[-1])
-                        and window[1:-1] == key_parts[1:-1]):
-                    best, best_len = (i, i + n - 1), len(printer_key)
-                    break
-        if best is None:
+        """Split ``parts`` into (before, after) around the best printer alias."""
+        hit = self.printers.find_in_parts(parts, delimiter)
+        if hit is None:
             return None
-        return parts[:best[0]], parts[best[1] + 1:]
+        return parts[:hit[1]], parts[hit[2] + 1:]
+
+    def _find_brand(self, parts: List[str], delimiter: str) -> Optional[Tuple[str, int]]:
+        """Match a known brand alias at the start of ``parts``.
+
+        Returns (canonical_brand, parts_consumed); aliases may span several
+        parts ("Canson Infinity"). Longest alias wins.
+        """
+        lowered = [p.lower() for p in parts]
+        for alias in self._brand_aliases:
+            alias_parts = alias.lower().split(delimiter)
+            n = len(alias_parts)
+            if lowered[:n] == alias_parts:
+                return self._normalize_brand(alias), n
+        return None
 
     def _normalize_brand(self, brand: str) -> str:
-        """Normalize brand name using mappings."""
+        """Normalize brand name using mappings (case-insensitive)."""
         if brand in self.brand_name_mappings:
             return self.brand_name_mappings[brand]
+        for alias, canonical in self.brand_name_mappings.items():
+            if alias.lower() == brand.lower():
+                return canonical
         return brand
