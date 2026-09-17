@@ -18,7 +18,7 @@ The organizer uses a two-tier configuration system:
 1. **`defaults.yaml`** - Base configuration with default printer names, brands, and mappings
 2. **`config.yaml`** (optional) - Your custom overrides and filename patterns
 
-If `config.yaml` is not present, the organizer will use the defaults from `defaults.yaml`. Any values in `config.yaml` will override the corresponding defaults.
+If `config.yaml` is not present, the organizer will use the defaults from `defaults.yaml`. A top-level key present in `config.yaml` (`printer_names`, `brand_name_mappings`, `filename_patterns`, …) **replaces** the packaged one entirely rather than merging with it, so when you add an alias to a key you override, add it in both files. `defaults.yaml` ships no `filename_patterns`; without a `config.yaml` list a built-in equivalent of the patterns below is used.
 
 ### defaults.yaml
 
@@ -193,7 +193,28 @@ Handles Red River Papers profiles and documentation files.
 - `RR Palo Duro Matte Canvas P9570 P7570.icc` → Printer: Epson P7570, Brand: Red River, Type: Palo Duro Matte Canvas
 - `Red River Paper_RR Aurora Natural 250.emy2` → Printer: Unknown, Brand: Red River, Type: Aurora Natural 250
 
-#### 6. Fallback Printer Detection (Priority: 10)
+#### 6. ILFORD Galerie Profiles (Priority: 95)
+
+Handles ILFORD's abbreviated naming via a [paper code map](#paper-code-maps).
+
+**Format:** `ILFORD_[Printer]_[PaperCode][_Variant]_[DriverMedia]`
+
+The printer alias may itself contain underscores (`CANpro-2_4_6_21_41_61`,
+one profile set for the imagePROGRAF PRO-2000/4000/6000/2100/4100/6100
+family). Variant and driver-media suffixes are dropped.
+
+**Examples:**
+
+- `ILFORD_EPSCX500_GPGFS_PGPP250.icc` → Printer: Epson P7570 (via P7500 remap), Brand: Ilford, Type: Gold Fibre Silk
+- `ILFORD_CANpro-100S_GPGFG17_PPPS.icc` → Printer: Canon Pixma PRO-100, Brand: Ilford, Type: Gold Fibre Gloss
+- `ILFORD_CANpro-2_4_6_21_41_61_GTWE_Warm_JPW.icc` → Printer: Canon imagePROGRAF PRO-2000, Brand: Ilford, Type: Tesuki-Washi Echizen 110 Warmtone
+
+The code legend comes from ILFORD's per-printer listings at
+<https://ilford.com/printer-profiles-paper-settings/> (the installation PDF's
+appendix is incomplete). Codes not yet in `code_map` fall through to plain
+formatting and show up as raw abbreviations — add them to the map.
+
+#### 7. Fallback Printer Detection (Priority: 10)
 
 Last resort pattern that searches for any printer key in the filename.
 

@@ -1,195 +1,128 @@
 # ICC Profile Organizer
 
-A smart tool that automatically organizes ICC color profiles, EMX/EMY2 files, and PDFs by printer model and paper brand. Supports flexible configuration, automatic filename parsing, and system profile installation.
+Turns a pile of vendor-named printer profiles into a clean, readable library.
 
-Instead of ICC profiles with names like `MOAB Anasazi Canvas PRO-100 MPP.icc`, you will end up with a name like `Canon Pixma PRO-100 - MOAB - Anasazi Canvas.icc`.
-
-This is helpful for businesses or users with multiple printers, in particular those using Adobe products, whose print dialog color profile selection menu is woefully inadequate for those who have multiple printers and use various brands of paper with those printers.
-
-Instead of having an unorganized list ordered by what the paper brand's file naming scheme is, this tool provides an easily readable list of profiles in alphabetical order, ordered by printer manufacturer, printer model, and paper brand in that order.
-
-**📖 [Detailed Configuration Guide →](configuration.md)**
-
-## What It Does
-
-- **Copies** files to `organized-profiles/` (or specified output folder) (original `profiles/` stays unchanged)
-- **Standardizes** filenames and ICC profile description names to: `Printer Name - Paper Brand - Paper Type [N].icc`
-- **Organizes** into folders: `organized-profiles/Printer/Brand/filename`
-- **Normalizes** brand names (`cifa` → `Canson`, `HFA` → `Hahnemuehle`, etc.)
-- **Detects** and removes duplicate PDFs via SHA-256 hashing
-- **Handles** multi-printer profiles interactively or via preferences
-
-Supports profiles from MOAB, Canson, Hahnemuehle, Red River, ILFORD, EPSON, and more. See [Configuration Guide](configuration.md) for pattern matching details and customization.
-
-## Installation
-
-This project uses [uv](https://docs.astral.sh/uv/) to manage the Python
-environment and dependencies.
-
-### Install uv
-
-```bash
-# macOS / Linux
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Windows (PowerShell)
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+MOAB Anasazi Canvas PRO-100 MPP.icc        →  Canon Pixma PRO-100/MOAB/Canon Pixma PRO-100 - MOAB - Anasazi Canvas.icc
+ILFORD_EPSCX500_GPGFS_PGPP250.icc          →  Epson P7570/Ilford/Epson P7570 - Ilford - Gold Fibre Silk.icc
+HFA_Can6450_MK_PhotoRag308.icc             →  Canon iPF6450/Hahnemuehle/Canon iPF6450 - Hahnemuehle - Photo Rag 308.icc
 ```
 
-### Set up the project
+Both the filename **and the description embedded in the ICC file** are
+rewritten, so the print dialog in Photoshop, Lightroom, etc. shows one
+alphabetical list grouped by printer, then paper brand, then paper — instead
+of whatever abbreviation scheme each paper vendor happened to use.
+
+Ships with parsers for MOAB, Canson, Hahnemuehle, Red River, ILFORD and Epson
+naming schemes; anything else is a few lines of YAML away
+([configuration.md](configuration.md)).
+
+## Install
+
+Requires [uv](https://docs.astral.sh/uv/).
 
 ```bash
-# Create the virtual environment and install all dependencies from
-# pyproject.toml (pinned by uv.lock)
+git clone git@github.com:narrowstacks/icc-profile-organizer.git
+cd icc-profile-organizer
 uv sync
 ```
 
-uv creates and manages the `.venv` for you — there's no need to manually create
-or activate a virtual environment. Prefix commands with `uv run` to execute them
-inside the project environment.
-
-## Quick Start
-
-### Preview changes (dry-run mode)
-
-Replace `./profiles` with the location of your folder of ICC profiles. The entire directory's contents and folders will be scanned, so no need to put all files in one folder.
+## Use
 
 ```bash
-uv run icc-organizer ./profiles
+# 1. Preview. Nothing is written. Read the output for "Could not parse" / Unknown.
+uv run icc-organizer ~/Downloads/new-profiles --detailed
+
+# 2. Do it. Output goes to a sibling folder: ~/Downloads/organized-profiles
+uv run icc-organizer ~/Downloads/new-profiles --execute
+
+# 3. Optionally install into ColorSync (prompts: 1 = /Library, 2 = ~/Library)
+uv run icc-organizer ~/Downloads/new-profiles --execute --system-profiles
 ```
 
-### Apply changes
+The source folder is scanned recursively and left untouched, except that
+byte-identical duplicate PDFs are removed. Re-running is safe: copies
+overwrite in place.
 
-```bash
-uv run icc-organizer ./profiles --execute
+Useful flags: `--output-dir`, `--interactive` (choose a printer when one
+profile lists several, e.g. P7570/P9570), `--profiles-only`, `--pdfs-only`,
+`--skip-desc-update`, `--no-system-profiles-prompt`. `--help` has the rest.
+
+### Output layout
+
 ```
-
-### Interactive mode
-
-Interactive mode will ask you if you want to consolidate the names of a printer type, if an ICC profile states that it's for multiple printers. An example would be the Epson SureColor P7570 and P9570 often sharing identical ICC profiles, but you likely don't own both printers.
-
-```bash
-uv run icc-organizer ./profiles --interactive --execute
-```
-
-## Command-Line Options
-
-**Common options:**
-
-```bash
-# Dry-run preview (safe, no changes)
-uv run icc-organizer ./profiles
-
-# Execute changes
-uv run icc-organizer ./profiles --execute
-
-# Interactive mode (for multi-printer profiles)
-uv run icc-organizer ./profiles --interactive --execute
-
-# Custom output directory
-uv run icc-organizer ./profiles --output-dir ./custom-dir --execute
-
-# Detailed file-by-file output
-uv run icc-organizer ./profiles --detailed
-
-# Copy to system ICC profile directory
-uv run icc-organizer ./profiles --execute --system-profiles
-```
-
-**Additional options:** `--profiles-only`, `--pdfs-only`, `--quiet`, `--skip-desc-update`
-
-See the [Configuration Guide](configuration.md) for complete command-line reference.
-
-## Interactive TUI (Config Wizard) - VERY WORK IN PROGRESS
-
-Build and manage configuration interactively instead of manually editing `config.yaml`:
-
-```bash
-uv run icc-config-wizard
-```
-
-**Features (WIP):**
-
-- **Scan Profiles** - Auto-detect printer/brand from filenames, see detection rate
-- **Fix Undetected** - Create mappings for unrecognized profiles with smart suggestions
-- **Edit Configuration** - Manage printer names, brand mappings, and remappings
-- **Preview Organization** - See how files will be organized before executing
-
-> **Note:** The config wizard TUI is still in early development. The core organization tool (`organize_profiles.py`) is stable and fully featured. The TUI is an optional convenience tool for building configuration, but manual YAML editing is fully supported and reliable.
-
-The TUI includes smart features like pattern reuse and auto-processing to minimize manual work. See the [Configuration Guide](configuration.md) for detailed documentation.
-
-## Output Structure
-
-```text
 organized-profiles/
 ├── Canon Pixma PRO-100/
-│   ├── Canson/
-│   │   └── Canon Pixma PRO-100 - Canson - Aqua 240.icc
-│   └── Moab/
-│       └── Canon Pixma PRO-100 - Moab - Anasazi Canvas.icc
-├── Epson P900/
-│   └── Moab/
+│   ├── Ilford/   Canon Pixma PRO-100 - Ilford - Gold Fibre Silk.icc
+│   └── MOAB/     Canon Pixma PRO-100 - MOAB - Anasazi Canvas.icc
+├── Epson P7570/
+│   └── Ilford/   …
 └── PDFs/
-    ├── Canon Pixma PRO-100/
-    └── Epson P900/
+    └── Epson P7570/   vendor instruction sheets, deduplicated
 ```
 
-Original `profiles/` directory remains unchanged.
+macOS ColorSync keeps this folder structure. Windows' colour directory does not
+read subfolders, so `--system-profiles` flattens it there.
 
-## System ICC Profile Installation
+## Let an agent do it
 
-Copy organized profiles to your system's ICC directory to make them available to all applications.
+This repo is written to be driven by a coding agent (Claude Code, Codex, Cursor
+agent, …). [`CLAUDE.md`](CLAUDE.md) / `AGENTS.md` contains a step-by-step
+playbook for the whole job — parsing a new vendor's naming scheme, verifying
+nothing else regressed, executing, and installing — so you can hand over a
+folder and a sentence.
 
-### macOS
+Open the agent in a clone of this repo and say something like:
 
-Two options:
-
-- **System directory** (requires admin): `/Library/ColorSync/Profiles`
-- **User directory** (no admin): `~/Library/ColorSync/Profiles`
-
-```bash
-# Will prompt for system or user directory
-uv run icc-organizer ./profiles --execute --system-profiles
-
-# Or use sudo for system directory
-sudo uv run icc-organizer ./profiles --execute --system-profiles
+```
+Organize the profiles in ~/Downloads/canson_profiles and install them
+for my Epson P7570. Follow the playbook in CLAUDE.md.
 ```
 
-### Windows
+What a good run looks like: the agent dry-runs, notices any files it can't
+name, goes and finds the vendor's legend (embedded descriptions, the bundled
+PDF, the vendor's download page), teaches `config.yaml` the new scheme,
+proves the existing library is unaffected, then executes and verifies the
+result. It should ask you one thing at most: which printer you own when a
+vendor ships one profile set for a whole family.
 
-Requires administrator privileges:
+If it produces `Unknown - Unknown - …` files, it skipped the legend step —
+point it back at CLAUDE.md.
 
-```bash
-# Run Command Prompt/PowerShell as Administrator, then:
-   uv run icc-organizer ./profiles --execute --system-profiles
-```
+## Configure
 
-**Note:** Windows uses a flat structure (due to Windows not reading folders inside of the colors directory); macOS preserves folder organization.
+Two YAML files, same schema:
+
+- `src/icc_profile_organizer/defaults.yaml` — shipped printer aliases,
+  brands, printer remappings.
+- `config.yaml` (repo root) — your overrides **and all filename patterns**.
+  A key defined here replaces the packaged one entirely.
+
+The pieces you'll touch:
+
+| Key                 | Does                                                                  |
+| ------------------- | --------------------------------------------------------------------- |
+| `printer_names`     | canonical printer → every alias vendors use (`EpsSC-P900`, `p900`, …) |
+| `printer_remappings`| fold printers you don't own into one you do (`Epson P9500 → P7570`)   |
+| `brand_name_mappings` | `cifa` → Canson, `HFA` → Hahnemuehle, …                             |
+| `filename_patterns` | how to split a vendor's filename into printer / brand / paper         |
+| `code_map`          | per-pattern lookup for abbreviated papers (`GPGFS` → Gold Fibre Silk) |
+
+Full reference, worked examples and the pattern engine's rules:
+[configuration.md](configuration.md).
 
 ## Troubleshooting
 
-**"Could not parse" warnings:**
+- **`Could not parse` / files under `Unknown/`** — the filename scheme is not
+  configured yet. Check `profile_organizer.log`, then add an alias or
+  pattern ([configuration.md](configuration.md)), or hand it to an agent.
+- **Keeps asking which printer** — run once with `--interactive`; answers are
+  saved next to the source files in `.profile_preferences.json`.
+- **Profiles don't appear in the app** — restart the app; for
+  `/Library/ColorSync/Profiles` you need `sudo`, `~/Library/…` you don't.
+- **Config wizard** (`uv run icc-config-wizard`) is an early WIP TUI; editing
+  the YAML by hand is the supported path.
 
-- Use the TUI's "Fix Undetected" feature or check `profile_organizer.log`
-- See [Configuration Guide](configuration.md) for adding custom patterns
+## License
 
-**System profile directory issues:**
-
-- **macOS**: Use user directory (`~/Library/ColorSync/Profiles`) or run with `sudo` for system directory
-- **Windows**: Run Command Prompt/PowerShell as Administrator
-
-**Multi-printer files:**
-
-- Use `--interactive` mode to set preferences
-- Preferences stored in `.profile_preferences.json`
-
-**Profiles not showing in applications:**
-
-- Restart the application or log out/restart your system
-
-See [Configuration Guide](configuration.md) for advanced troubleshooting.
-
-## Logging
-
-All operations are logged to `profile_organizer.log`.
+MIT — see [LICENSE](LICENSE).
