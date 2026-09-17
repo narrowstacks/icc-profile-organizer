@@ -248,6 +248,10 @@ class ProfileOrganizer:
         # Track existing names to handle duplicates
         existing_names = {}
 
+        # PDF operations are collected separately so that executing them does
+        # not re-copy the profile operations already run by organize_profiles().
+        pdf_ops = []
+
         # Process PDFs
         for file_path in pdf_files:
             # Check if this is a duplicate (not the first occurrence)
@@ -270,18 +274,19 @@ class ProfileOrganizer:
                     ext = file_path.suffix.lstrip('.')
                     new_filename = generate_new_filename(printer, 'PDFs', file_path.stem, ext, existing_names)
                     new_path = self.output_dir / 'PDFs' / printer / new_filename
-                    self.operations.append((file_path, new_path))
+                    pdf_ops.append((file_path, new_path))
                     if self.detailed:
                         self.log(f"  {file_path.relative_to(self.profiles_dir)} -> PDFs/{printer}/{new_filename}")
 
+        self.operations.extend(pdf_ops)
+
         # Show PDF organization summary
-        pdf_ops = [op for op in self.operations if 'PDFs' in str(op[1])]
         if not self.detailed and pdf_ops:
             print_pdf_organization_summary(pdf_ops, len(self.files_deleted), verbose=True)
 
-        # Execute operations if not dry run
+        # Execute only the PDF operations if not dry run
         if not self.dry_run:
-            renamed, _ = execute_copy_operations(self.operations, verbose=self.verbose)
+            renamed, _ = execute_copy_operations(pdf_ops, verbose=self.verbose)
             self.files_renamed.extend(renamed)
 
         return True
