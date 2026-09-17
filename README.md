@@ -61,6 +61,9 @@ organized-profiles/
 ├── Canon Pixma PRO-100/
 │   ├── Ilford/   Canon Pixma PRO-100 - Ilford - Gold Fibre Silk.icc
 │   └── MOAB/     Canon Pixma PRO-100 - MOAB - Anasazi Canvas.icc
+├── Canon imagePROGRAF PRO-2000/
+│   └── MOAB/     Canon imagePROGRAF PRO-2000 - MOAB - Entrada Rag Bright.icc
+│                 Canon imagePROGRAF PRO-2000 - MOAB - Entrada Rag Bright.am1x
 ├── Epson P7570/
 │   └── Ilford/   …
 └── PDFs/
@@ -122,6 +125,9 @@ Full reference, worked examples and the pattern engine's rules:
 - **`Could not parse` / files under `Unknown/`** — the filename scheme is not
   configured yet. Check `profile_organizer.log`, then add an alias or
   pattern ([configuration.md](configuration.md)), or hand it to an agent.
+  Media presets with no printer in the name (`RR Polar Matte.am1`) are
+  resolved from their folder name, so keep each vendor download in its own
+  folder rather than flattening everything into one.
 - **Keeps asking which printer** — run once with `--interactive`; answers are
   saved next to the source files in `.profile_preferences.json`.
 - **Profiles don't appear in the app** — restart the app; for
